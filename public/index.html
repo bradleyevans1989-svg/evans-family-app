@@ -481,7 +481,7 @@ function eventItem(e){
   const color = ppl.length===1 ? ppl[0] : null;
   return `<button class="item" style="text-align:left;${color?pc(color):""}" data-act="edit-event" data-id="${e.id}">
     <span class="stripe" style="${color?pc(color):""}"></span>
-    <span class="time">${esc(niceTime(e.time))}</span>
+    <span class="time">${esc(niceTime(e.time))}${e.time && e.end ? `<br><span style="font-weight:600">to ${esc(niceTime(e.end))}</span>` : ""}</span>
     <span class="grow"><b>${esc(e.title)}</b>${e.notes?`<br><span class="small muted">${esc(e.notes)}</span>`:""}</span>
     <span class="faces">${ppl.length===FAM.length ? `<span class="tag" style="--pc:var(--accent)">Everyone</span>` : ppl.map(p=>av(p,"sm")).join("")}</span>
   </button>`;
@@ -515,14 +515,17 @@ function eventSheet(e){
   openSheet(`<h2>${isNew?"Add to the calendar":"Edit event"}</h2>
     <form id="f" class="stack" style="margin-top:12px">
       <label class="f">What's on?<input class="input" id="ev-title" required maxlength="80" value="${esc(e.title)}" placeholder="Ari's footy game"></label>
-      <div class="row"><label class="f grow">Day<input class="input" id="ev-date" type="date" required value="${esc(e.date)}"></label><label class="f grow">Time<input class="input" id="ev-time" type="time" value="${esc(e.time)}"></label></div>
+      <label class="f">Day<input class="input" id="ev-date" type="date" required value="${esc(e.date)}"></label>
+      <div class="row"><label class="f grow">Starts<input class="input" id="ev-time" type="time" value="${esc(e.time)}"></label><label class="f grow">Finishes<input class="input" id="ev-end" type="time" value="${esc(e.end||"")}"></label></div>
       <div class="f"><span>Who's going? <span class="small">(none picked means everyone)</span></span>${peopleChips("ev-who", e.who||[], true)}</div>
       <label class="f">Notes<textarea class="input" id="ev-notes" maxlength="300" placeholder="Bring snacks">${esc(e.notes||"")}</textarea></label>
       <button class="btn accent block" type="submit">${isNew?"Add to calendar":"Save"}</button>
       ${isNew?"":`<button class="btn ghost block" type="button" data-act="del-event" data-id="${e.id}">${ic("trash")} Delete</button>`}
     </form>`, async () => {
-      const data = {title: $("#ev-title").value.trim(), date: $("#ev-date").value, time: $("#ev-time").value, who: chipVals("ev-who"), notes: $("#ev-notes").value.trim(), by: st.me};
+      const data = {title: $("#ev-title").value.trim(), date: $("#ev-date").value, time: $("#ev-time").value, end: $("#ev-end").value, who: chipVals("ev-who"), notes: $("#ev-notes").value.trim(), by: st.me};
       if(!data.title || !data.date) return;
+      if(data.end && !data.time){ toast("Add a start time as well as a finish time"); return; }
+      if(data.end && data.end <= data.time){ toast("The finish time needs to be after the start time"); return; }
       const ok = isNew ? await store.add("events", data) : await store.set("events", e.id, {...data, ts: e.ts||Date.now()});
       if(ok){ closeSheet(); st.calDay = data.date; const d = parseYmd(data.date); st.calMonth = new Date(d.getFullYear(), d.getMonth(), 1); toast(isNew?"Added to the calendar":"Saved"); render(); }
     });
@@ -624,7 +627,7 @@ function bonusSheet(){
   openSheet(`<h2>Give points</h2><form id="f" class="stack" style="margin-top:12px">
     <div class="f"><span>Who?</span>${peopleChips("bn-who", [], false)}</div>
     <label class="f">Points (use a minus to take some away)<input class="input" id="bn-pts" inputmode="numeric" required value="10"></label>
-    <label class="f">What for?<input class="input" id="bn-why" required maxlength="80" placeholder="Helped Nan with the shopping"></label>
+    <label class="f">What for?<input class="input" id="bn-why" required maxlength="80" placeholder="Washed the car without being asked"></label>
     <button class="btn accent block" type="submit">Give points</button></form>`, async () => {
       const w = chipVals("bn-who")[0], pts = parseInt($("#bn-pts").value,10), reason = $("#bn-why").value.trim();
       if(!w || !pts || !reason){ toast("Pick a person, a number and a reason"); return; }
