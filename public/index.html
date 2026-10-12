@@ -1,0 +1,1061 @@
+<!doctype html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Evans Family</title>
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="apple-touch-icon" href="/icon-180.png">
+<link rel="icon" href="/icon-192.png">
+<meta name="theme-color" content="#FBEFE8">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Evans">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Nunito:wght@400;600;700;800&display=swap">
+<style>
+/* Layout: one phone-width column, sunset glow behind soft cards, fixed tab bar with a raised "+" in the middle */
+:root{
+  --bg:#FBF3EE; --glow1:#FFD3B4; --glow2:#F6C3DA; --glow3:#DCC8F6;
+  --card:#FFFFFF; --card2:#FFF6F0; --ink:#221A2E; --muted:#776B82; --line:#F0E2DA;
+  --accent:#FF7440; --accent2:#FFB547; --accent-ink:#FFFFFF;
+  --pill:#221A2E; --pill-ink:#FFFFFF;
+  --good:#23945F; --warn:#C98A0C; --bad:#D4405A;
+  --p-brad:#3A74DB; --p-elle:#DB4A79; --p-ruby:#8452F0; --p-ari:#0F9895; --p-lola:#E5791A;
+  --shadow:0 6px 24px -10px rgba(80,40,60,.25);
+  --f-display:"Bricolage Grotesque","Avenir Next","Segoe UI",system-ui,sans-serif;
+  --f-body:"Nunito","Avenir Next","Segoe UI",system-ui,sans-serif;
+  --r-lg:24px; --r-md:16px; --r-sm:12px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#17121D; --glow1:#3B2330; --glow2:#36203A; --glow3:#272043;
+  --card:#231C2B; --card2:#2B2335; --ink:#F7EEF4; --muted:#AE9FB9; --line:#382D42;
+  --accent:#FF8A5C; --accent2:#FFC266; --accent-ink:#1B1220;
+  --pill:#F7EEF4; --pill-ink:#1B1520;
+  --good:#4CC28B; --warn:#F0B53D; --bad:#F06A80;
+  --p-brad:#77A5F2; --p-elle:#F27FA3; --p-ruby:#AC8DFB; --p-ari:#3FC6C1; --p-lola:#F7A659;
+  --shadow:0 6px 24px -12px rgba(0,0,0,.6); color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#17121D; --glow1:#3B2330; --glow2:#36203A; --glow3:#272043;
+  --card:#231C2B; --card2:#2B2335; --ink:#F7EEF4; --muted:#AE9FB9; --line:#382D42;
+  --accent:#FF8A5C; --accent2:#FFC266; --accent-ink:#1B1220;
+  --pill:#F7EEF4; --pill-ink:#1B1520;
+  --good:#4CC28B; --warn:#F0B53D; --bad:#F06A80;
+  --p-brad:#77A5F2; --p-elle:#F27FA3; --p-ruby:#AC8DFB; --p-ari:#3FC6C1; --p-lola:#F7A659;
+  --shadow:0 6px 24px -12px rgba(0,0,0,.6); color-scheme:dark}
+
+html,body{min-height:100%}
+body{margin:0}
+img{max-width:100%}
+[hidden]{display:none!important}
+:root{padding-top:env(safe-area-inset-top,0px)}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.45;-webkit-tap-highlight-color:transparent}
+body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;
+  background:radial-gradient(60% 40% at 15% 0%,var(--glow1),transparent 70%),radial-gradient(55% 40% at 95% 10%,var(--glow2),transparent 70%),radial-gradient(70% 45% at 50% 105%,var(--glow3),transparent 70%)}
+*{box-sizing:border-box}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer;border:0;background:none;padding:0}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px;border-radius:8px}
+h1,h2,h3{font-family:var(--f-display);margin:0;line-height:1.1;text-wrap:balance;letter-spacing:-.01em}
+h1{font-size:28px;font-weight:800}
+h2{font-size:19px;font-weight:800}
+h3{font-size:16px;font-weight:600}
+p{margin:0}
+.muted{color:var(--muted)}
+.small{font-size:13px}
+.num{font-variant-numeric:tabular-nums}
+
+.app{max-width:480px;margin:0 auto;padding-inline:16px;padding-block:14px calc(110px + env(safe-area-inset-bottom,0px))}
+.stack{display:flex;flex-direction:column;gap:14px}
+.row{display:flex;align-items:center;gap:10px}
+.row.wrap{flex-wrap:wrap}
+.grow{flex:1;min-width:0}
+.between{justify-content:space-between}
+.section-head{display:flex;align-items:baseline;justify-content:space-between;margin-top:6px}
+.link{color:var(--accent);font-weight:700;font-size:13px}
+
+.card{background:var(--card);border-radius:var(--r-lg);padding:16px;box-shadow:var(--shadow)}
+.card.flat{box-shadow:none;background:var(--card2)}
+.list{display:flex;flex-direction:column;gap:8px}
+.item{background:var(--card);border-radius:var(--r-md);padding:12px 14px;display:flex;gap:12px;align-items:center;box-shadow:var(--shadow)}
+.item .grow p{overflow-wrap:anywhere}
+.empty{padding:18px;border:2px dashed var(--line);border-radius:var(--r-md);text-align:center;color:var(--muted);font-size:14px}
+
+.avatar{width:40px;height:40px;border-radius:50%;object-fit:cover;flex:none;border:2px solid var(--card);box-shadow:0 0 0 2px var(--pc,var(--line))}
+.avatar.sm{width:28px;height:28px;border-width:1.5px}
+.avatar.lg{width:64px;height:64px;border-width:3px}
+.faces{display:flex}
+.faces .avatar{margin-left:-8px}
+.faces .avatar:first-child{margin-left:0}
+
+.pill{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:999px;font-weight:800;font-size:13px;white-space:nowrap}
+.pill.dark{background:var(--pill);color:var(--pill-ink)}
+.pill.pts{background:color-mix(in srgb,var(--accent2) 26%,var(--card));color:var(--ink)}
+.pill.soft{background:var(--card2);color:var(--ink)}
+.pill.good{background:color-mix(in srgb,var(--good) 18%,var(--card));color:var(--good)}
+.pill.warn{background:color-mix(in srgb,var(--warn) 18%,var(--card));color:var(--warn)}
+.tag{display:inline-flex;align-items:center;padding:2px 9px;border-radius:999px;font-size:12px;font-weight:700;background:color-mix(in srgb,var(--pc) 16%,var(--card));color:var(--pc)}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:12px 18px;border-radius:999px;font-weight:800;background:var(--pill);color:var(--pill-ink);min-height:44px}
+.btn.accent{background:var(--accent);color:var(--accent-ink)}
+.btn.ghost{background:var(--card2);color:var(--ink)}
+.btn.small{padding:7px 14px;min-height:34px;font-size:13px}
+.btn.block{width:100%}
+.btn[disabled]{opacity:.45;cursor:not-allowed}
+.iconbtn{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;background:var(--card);box-shadow:var(--shadow);flex:none}
+svg.i{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none}
+
+.seg{display:flex;background:var(--card);border-radius:999px;padding:4px;gap:4px;box-shadow:var(--shadow)}
+.seg button{flex:1;padding:9px 10px;border-radius:999px;font-weight:800;font-size:14px;color:var(--muted)}
+.seg button[aria-pressed="true"]{background:linear-gradient(135deg,var(--glow1),var(--glow2));color:var(--ink)}
+
+.banner{border-radius:var(--r-lg);padding:16px 18px;background:linear-gradient(120deg,var(--glow1),var(--glow2) 60%,var(--glow3));display:flex;align-items:center;gap:12px}
+.banner h3{font-size:17px}
+
+/* header */
+.top{display:flex;align-items:center;gap:12px;padding-block:6px 4px}
+.top .who{display:flex;flex-direction:column;min-width:0}
+.top .who b{font-family:var(--f-display);font-size:20px;line-height:1.1}
+
+/* bottom nav */
+.nav{position:fixed;left:0;right:0;bottom:0;z-index:20;padding:0 12px calc(10px + env(safe-area-inset-bottom,0px));pointer-events:none}
+.nav-inner{pointer-events:auto;max-width:456px;margin:0 auto;background:var(--card);border-radius:28px;box-shadow:0 10px 40px -12px rgba(50,20,50,.35);display:grid;grid-template-columns:repeat(5,1fr);align-items:end;padding:8px 6px}
+.nav a{display:flex;flex-direction:column;align-items:center;gap:2px;font-size:11px;font-weight:700;color:var(--muted);text-decoration:none;padding:4px 0;cursor:pointer;position:relative}
+.nav a[aria-current="page"]{color:var(--ink)}
+.nav a[aria-current="page"] svg{stroke:var(--accent)}
+.nav .plus{justify-self:center;width:52px;height:52px;margin-top:-26px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;display:grid;place-items:center;box-shadow:0 8px 20px -6px var(--accent)}
+.nav .plus svg{width:26px;height:26px;stroke-width:2.6}
+.dot{position:absolute;top:0;right:calc(50% - 18px);min-width:16px;height:16px;padding:0 4px;border-radius:8px;background:var(--bad);color:#fff;font-size:10px;line-height:16px;text-align:center}
+
+/* sheet */
+.scrim{position:fixed;inset:0;background:rgba(20,10,25,.45);z-index:40;display:flex;align-items:flex-end;justify-content:center}
+.sheet{background:var(--bg);width:100%;max-width:480px;max-height:88vh;overflow:auto;border-radius:28px 28px 0 0;padding:10px 16px calc(20px + env(safe-area-inset-bottom,0px));animation:up .22s ease-out}
+.sheet .grab{width:44px;height:5px;border-radius:3px;background:var(--line);margin:4px auto 12px}
+@keyframes up{from{transform:translateY(40px);opacity:.4}}
+@media (prefers-reduced-motion:reduce){.sheet{animation:none}}
+label.f{display:flex;flex-direction:column;gap:6px;font-weight:700;font-size:13px;color:var(--muted)}
+.input{width:100%;padding:12px 14px;border-radius:var(--r-sm);border:2px solid var(--line);background:var(--card);color:var(--ink);font-size:16px;font-weight:600}
+.input:focus{border-color:var(--accent);outline:none}
+textarea.input{min-height:72px;resize:vertical}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:5px 12px 5px 5px;border-radius:999px;background:var(--card);border:2px solid var(--line);font-weight:700;font-size:13px}
+.chip.noimg{padding:7px 14px}
+.chip[aria-pressed="true"]{border-color:var(--pc,var(--accent));background:color-mix(in srgb,var(--pc,var(--accent)) 14%,var(--card))}
+
+/* welcome */
+.welcome{display:flex;flex-direction:column;gap:18px;padding-top:8px}
+.hero{position:relative;border-radius:30px;overflow:hidden;aspect-ratio:1.1/1;max-width:100%;box-shadow:var(--shadow)}
+.hero img{width:100%;height:100%;object-fit:cover;display:block}
+.hero::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 45%,rgba(20,8,20,.65))}
+.hero .cap{position:absolute;left:18px;right:18px;bottom:16px;z-index:1;color:#fff}
+.hero .cap h1{font-size:34px;color:#fff}
+.pick{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.pick button{background:var(--card);border-radius:20px;padding:14px 6px 10px;display:flex;flex-direction:column;align-items:center;gap:6px;box-shadow:var(--shadow);font-weight:800}
+.pick small{color:var(--muted);font-weight:600;font-size:12px}
+
+/* calendar */
+.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;text-align:center}
+.cal .dow{font-size:11px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;padding-bottom:4px}
+.cal button{aspect-ratio:1;border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-weight:700;font-variant-numeric:tabular-nums;min-width:0}
+.cal button.out{color:var(--muted);opacity:.5}
+.cal button.today{background:var(--card2)}
+.cal button[aria-pressed="true"]{background:var(--pill);color:var(--pill-ink)}
+.cal .dots{display:flex;gap:2px;height:5px}
+.cal .dots i{width:5px;height:5px;border-radius:50%;background:var(--pc)}
+.time{font-weight:800;font-size:13px;min-width:56px;color:var(--muted);font-variant-numeric:tabular-nums}
+.stripe{width:4px;align-self:stretch;border-radius:4px;background:var(--pc,var(--accent))}
+
+/* meals */
+.meal{display:grid;grid-template-columns:52px 1fr auto;gap:12px;align-items:center}
+.meal .d{text-align:center;border-radius:14px;padding:6px 0;background:var(--card2);font-weight:800;line-height:1.1}
+.meal .d small{display:block;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.meal.today .d{background:linear-gradient(135deg,var(--glow1),var(--glow2))}
+.check{width:26px;height:26px;border-radius:8px;border:2px solid var(--line);display:grid;place-items:center;flex:none}
+.check[aria-pressed="true"]{background:var(--good);border-color:var(--good);color:#fff}
+.done-text{text-decoration:line-through;color:var(--muted)}
+
+/* chat */
+.msgs{display:flex;flex-direction:column;gap:8px;padding-bottom:8px}
+.bubble{max-width:100%;padding:10px 14px;border-radius:20px;background:var(--card);box-shadow:var(--shadow);overflow-wrap:anywhere}
+.bubble.me{align-self:flex-end;background:linear-gradient(135deg,var(--glow1),var(--glow2));color:#2a1a2a;border-bottom-right-radius:6px}
+.bubble.them{border-bottom-left-radius:6px}
+.mrow{display:flex;gap:8px;align-items:flex-end}
+.mrow.me{justify-content:flex-end}
+.mmeta{font-size:11px;color:var(--muted);margin:0 6px}
+.composer{position:fixed;left:0;right:0;bottom:0;z-index:25;padding:10px 16px calc(12px + env(safe-area-inset-bottom,0px));background:linear-gradient(transparent,var(--bg) 30%)}
+.composer form{max-width:448px;margin:0 auto;display:flex;gap:8px}
+.composer .input{border-radius:999px}
+
+/* play */
+.game-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.game{border-radius:var(--r-lg);padding:16px;min-height:150px;display:flex;flex-direction:column;justify-content:space-between;gap:10px;text-align:left;color:#2a1a2a;box-shadow:var(--shadow)}
+.game h3{font-size:18px;font-weight:800;font-family:var(--f-display)}
+.game .ico{width:44px;height:44px;border-radius:14px;background:rgba(255,255,255,.6);display:grid;place-items:center}
+.g1{background:linear-gradient(150deg,#FFC9A8,#FF9E7A)}
+.g2{background:linear-gradient(150deg,#D7C6FA,#B49CF2)}
+.g3{background:linear-gradient(150deg,#FFE29A,#FFC56B)}
+.g4{background:linear-gradient(150deg,#AEE8DF,#7FD3C9)}
+.bar{height:8px;border-radius:4px;background:var(--line);overflow:hidden}
+.bar i{display:block;height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:4px}
+.game .bar{background:rgba(255,255,255,.55)}
+
+.ttt{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;max-width:320px;margin:0 auto;width:100%}
+.ttt button{aspect-ratio:1;border-radius:18px;background:var(--card);box-shadow:var(--shadow);font-family:var(--f-display);font-size:44px;font-weight:800}
+.ttt .x{color:var(--accent)} .ttt .o{color:var(--p-ruby)}
+.ttt .win{background:color-mix(in srgb,var(--good) 20%,var(--card))}
+
+.big-q{font-family:var(--f-display);font-size:40px;font-weight:800;text-align:center;font-variant-numeric:tabular-nums;padding:8px 0;overflow-wrap:anywhere}
+.answer{font-family:var(--f-display);font-size:32px;font-weight:800;text-align:center;min-height:56px;border-radius:var(--r-md);background:var(--card);display:grid;place-items:center;box-shadow:var(--shadow);font-variant-numeric:tabular-nums}
+.keypad{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.keypad button{min-height:56px;border-radius:16px;background:var(--card);font-size:22px;font-weight:800;box-shadow:var(--shadow)}
+.keypad button.go{background:var(--accent);color:var(--accent-ink)}
+.flash-good{animation:fg .4s} .flash-bad{animation:fb .4s}
+@keyframes fg{50%{background:color-mix(in srgb,var(--good) 35%,var(--card))}}
+@keyframes fb{50%{background:color-mix(in srgb,var(--bad) 35%,var(--card))}}
+.timer{font-family:var(--f-display);font-weight:800;font-size:22px;font-variant-numeric:tabular-nums}
+.letters{display:flex;justify-content:center;flex-wrap:wrap;gap:6px}
+.letters span{min-width:34px;height:42px;border-radius:10px;background:var(--card);box-shadow:var(--shadow);display:grid;place-items:center;font-family:var(--f-display);font-weight:800;font-size:22px;text-transform:lowercase;padding:0 6px}
+.letters span.gap{background:var(--card2);color:var(--accent)}
+
+.spin{font-family:var(--f-display);font-size:26px;font-weight:800;text-align:center;padding:18px 10px;border-radius:var(--r-lg);background:linear-gradient(120deg,var(--glow1),var(--glow2),var(--glow3));color:#2a1a2a;min-height:72px;display:grid;place-items:center}
+.lb{display:grid;grid-template-columns:28px 1fr auto;gap:10px;align-items:center}
+.toast{position:fixed;left:50%;bottom:calc(100px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--pill);color:var(--pill-ink);padding:10px 18px;border-radius:999px;font-weight:700;z-index:60;max-width:calc(100% - 32px);text-align:center}
+.note{font-size:12px;color:var(--muted);text-align:center}
+</style>
+</head>
+<body>
+<div id="root" class="app"><p class="muted" style="padding-top:40px;text-align:center">Loading the Evans family app…</p></div>
+<div id="sheet-host"></div>
+
+<script>
+(() => {
+"use strict";
+// ---------- family ----------
+const FAM = [
+  {id:"brad", name:"Brad", label:"Dad", age:37, parent:true,  photo:"/img/brad.jpg"},
+  {id:"elle", name:"Elle", label:"Mum", age:36, parent:true,  photo:"/img/elle.jpg"},
+  {id:"ruby", name:"Ruby", label:"Ruby", age:16, level:3, photo:"/img/ruby.jpg"},
+  {id:"ari",  name:"Ari",  label:"Ari",  age:14, level:2, photo:"/img/ari.jpg"},
+  {id:"lola", name:"Lola", label:"Lola", age:12, level:1, photo:"/img/lola.jpg"},
+];
+const HERO = "/img/hero.jpg";
+const M = Object.fromEntries(FAM.map(m => [m.id, m]));
+const KIDS = FAM.filter(m => !m.parent);
+const GAME_CAP = 20; // max points per learning game per person per day
+const DEFAULT_REWARDS = [
+  {id:"d1", title:"30 min extra screen time", cost:50},
+  {id:"d2", title:"Pick the movie on movie night", cost:60},
+  {id:"d3", title:"Choose what's for dinner", cost:80},
+  {id:"d4", title:"$5 pocket money", cost:100},
+  {id:"d5", title:"Skip one job", cost:120},
+  {id:"d6", title:"Stay up 30 min late", cost:150},
+];
+
+// ---------- utils ----------
+const $ = (s, el=document) => el.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const pad = n => String(n).padStart(2,"0");
+const ymd = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+const parseYmd = s => { const [y,m,d] = s.split("-").map(Number); return new Date(y, m-1, d); };
+const addDays = (d,n) => { const x = new Date(d); x.setDate(x.getDate()+n); return x; };
+const todayKey = () => ymd(new Date());
+const mondayOf = d => { const x = new Date(d.getFullYear(), d.getMonth(), d.getDate()); const w = (x.getDay()+6)%7; return addDays(x,-w); };
+const DOW = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+const MON = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+const MONTHS = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+const niceDate = k => { const d = parseYmd(k); return `${DOW[d.getDay()]} ${d.getDate()} ${MON[d.getMonth()]}`; };
+const niceTime = t => { if(!t) return "All day"; const [h,m] = t.split(":").map(Number); return `${((h+11)%12)+1}:${pad(m)} ${h<12?"am":"pm"}`; };
+const ago = ts => { const s = (Date.now()-ts)/1000; if(s<60) return "just now"; if(s<3600) return `${Math.floor(s/60)}m ago`; if(s<86400) return `${Math.floor(s/3600)}h ago`; const d = new Date(ts); return `${d.getDate()} ${MON[d.getMonth()]}`; };
+const nextFriday = () => { const d = new Date(); const add = (5 - d.getDay() + 7) % 7; return ymd(addDays(d, add)); };
+const rid = () => Math.random().toString(36).slice(2,10) + Date.now().toString(36).slice(-4);
+const shuffle = a => { a = a.slice(); for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} return a; };
+const ri = (a,b) => a + Math.floor(Math.random()*(b-a+1));
+const pick = a => a[Math.floor(Math.random()*a.length)];
+const ls = { get(k,d){ try{ const v = localStorage.getItem(k); return v==null?d:JSON.parse(v);}catch{return d;} }, set(k,v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch{} } };
+
+const ICON = {
+  home:'<path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/>',
+  cal:'<rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/>',
+  jobs:'<path d="M9 11l3 3 8-8"/><path d="M20 12v6a3 3 0 0 1-3 3H6a3 3 0 0 1-3-3V7a3 3 0 0 1 3-3h9"/>',
+  chat:'<path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/>',
+  play:'<rect x="2" y="7" width="20" height="12" rx="5"/><path d="M7 11v4M5 13h4"/><circle cx="16" cy="12" r="1"/><circle cx="18" cy="14.5" r="1"/>',
+  plus:'<path d="M12 5v14M5 12h14"/>',
+  star:'<path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z"/>',
+  left:'<path d="M15 18l-6-6 6-6"/>', right:'<path d="M9 18l6-6-6-6"/>',
+  heart:'<path d="M20.8 5.6a5 5 0 0 0-7.1 0L12 7.3l-1.7-1.7a5 5 0 1 0-7.1 7.1L12 21.5l8.8-8.8a5 5 0 0 0 0-7.1z"/>',
+  film:'<rect x="3" y="3" width="18" height="18" rx="3"/><path d="M7 3v18M17 3v18M3 8h4M3 16h4M17 8h4M17 16h4"/>',
+  grid:'<path d="M9 3v18M15 3v18M3 9h18M3 15h18"/>',
+  abc:'<path d="M4 18l4-12 4 12M5.5 14h5"/><path d="M15 6v12h3a3 3 0 0 0 0-6h-3 2.5a3 3 0 0 0 0-6H15"/>',
+  calc:'<rect x="4" y="3" width="16" height="18" rx="3"/><path d="M8 7h8M8 12h.01M12 12h.01M16 12h.01M8 16h.01M12 16h.01M16 16h.01"/>',
+  x:'<path d="M18 6L6 18M6 6l12 12"/>', trash:'<path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/>',
+  send:'<path d="M22 2L11 13M22 2l-7 20-4-9-9-4z"/>', sound:'<path d="M11 5L6 9H3v6h3l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M19 5a10 10 0 0 1 0 14"/>',
+  food:'<path d="M7 3v8a2 2 0 0 0 2 2v8M5 3v6M9 3v6M17 21V3c-2.5 1-4 3.5-4 7h4"/>',
+  gift:'<rect x="3" y="8" width="18" height="5" rx="1"/><path d="M5 13v8h14v-8M12 8v13M12 8S9 3 7 5s1 3 5 3c4 0 7-1 5-3s-5 3-5 3"/>',
+  check:'<path d="M5 12l5 5L20 7"/>', swap:'<path d="M7 4L3 8l4 4M3 8h14M17 20l4-4-4-4M21 16H7"/>',
+  clock:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+};
+const ic = (n, extra="") => `<svg class="i" viewBox="0 0 24 24" aria-hidden="true" ${extra}>${ICON[n]}</svg>`;
+const pc = id => `--pc:var(--p-${id})`;
+const av = (id, cls="") => M[id] ? `<img class="avatar ${cls}" style="${pc(id)}" src="${M[id].photo}" alt="${esc(M[id].label)}">` : "";
+const who = id => M[id] ? M[id].label : "Someone";
+
+// ---------- store (talks to the family server) ----------
+const COLLS = ["events","jobs","ledger","messages","meals","prep","movies","rewards","games","settings"];
+const S = Object.fromEntries(COLLS.map(c => [c, []]));
+let token = ls.get("evans-token", null), ver = 0, syncing = false, syncAgain = false, customPins = [];
+function deepMerge(a, b){ const o = {...a}; for(const k in b){ const v = b[k]; o[k] = (v && typeof v==="object" && !Array.isArray(v) && a && typeof a[k]==="object" && a[k] && !Array.isArray(a[k])) ? deepMerge(a[k], v) : v; } return o; }
+const clean = o => JSON.parse(JSON.stringify(o));
+
+async function api(path, body){
+  const r = await fetch(path, {method: body ? "POST" : "GET", headers: {"Content-Type":"application/json", ...(token ? {Authorization: "Bearer " + token} : {})}, body: body ? JSON.stringify(body) : undefined});
+  let j = {}; try{ j = await r.json(); }catch{}
+  if(r.status===401 && path!=="/api/login"){ logout(); throw Object.assign(new Error("auth"), {quiet:true}); }
+  if(!r.ok) throw Object.assign(new Error(j.error || "Request failed"), {status: r.status, msg: j.error});
+  return j;
+}
+function logout(){ token = null; ls.set("evans-token", null); st.me = null; ls.set("evans-me", null); ver = 0; closeSheet(); clearGame(); render(); }
+function applyLocal(op, c, id, data){
+  const i = S[c].findIndex(x => x.id===id);
+  if(op==="delete"){ if(i>=0) S[c].splice(i,1); }
+  else if(op==="update"){ if(i>=0) S[c][i] = deepMerge(S[c][i], data); }
+  else { const row = {id, ...data}; if(i<0) S[c].push(row); else S[c][i] = row; }
+}
+async function write(op, c, id, data){
+  applyLocal(op, c, id, data); scheduleRender();
+  try{ await api("/api/write", {op, coll:c, id, data}); sync(); return true; }
+  catch(e){ if(!e.quiet) toast(e.status===404 ? "That was already removed." : "That didn't save. Check your connection and try again."); ver = 0; sync(); return false; }
+}
+const store = {
+  add(c, data){ return write("set", c, rid(), clean({...data, ts: data.ts || Date.now()})); },
+  set(c, id, data){ return write("set", c, id, clean(data)); },
+  update(c, id, data){ return write("update", c, id, clean(data)); },
+  del(c, id){ return write("delete", c, id); },
+};
+async function sync(){
+  if(!token) return;
+  if(syncing){ syncAgain = true; return; }
+  syncing = true;
+  try{
+    const j = await api("/api/sync?v=" + ver);
+    if(j.docs){ COLLS.forEach(c => S[c] = []); for(const d of j.docs) if(S[d.coll]) S[d.coll].push({id: d.id, ...d.data}); scheduleRender(); }
+    ver = j.v;
+  }catch(e){ if(!e.quiet) console.warn("sync", e); }
+  finally{ syncing = false; if(syncAgain){ syncAgain = false; sync(); } }
+}
+async function loadPins(){ try{ customPins = (await api("/api/pins")).custom || []; if(!st.me) render(); }catch{} }
+const hasOwnPin = id => customPins.includes(id);
+const settings = () => S.settings.find(s => s.id==="family") || {};
+async function saveSettings(patch){
+  const cur = settings(); const {id, ...rest} = cur;
+  return store.set("settings", "family", deepMerge(rest, patch));
+}
+function initStore(){
+  loadPins(); sync();
+  setInterval(() => { if(!document.hidden) sync(); }, 4000);
+  document.addEventListener("visibilitychange", () => { if(!document.hidden) sync(); });
+}
+
+// ---------- points ----------
+const balance = id => S.ledger.filter(l => l.who===id).reduce((a,l) => a + (+l.pts||0), 0);
+const weekEarned = id => { const from = mondayOf(new Date()).getTime(); return S.ledger.filter(l => l.who===id && l.pts>0 && l.ts>=from).reduce((a,l)=>a+l.pts,0); };
+const gameDocId = (id, game, day=todayKey()) => `g_${id}_${game}_${day}`;
+const gameToday = (id, game) => { const d = S.ledger.find(l => l.id===gameDocId(id,game)); return d ? d.pts : 0; };
+async function awardGame(id, game, earned){
+  const docId = gameDocId(id, game); const have = gameToday(id, game);
+  const total = Math.min(GAME_CAP, have + earned); const gained = total - have;
+  if(gained <= 0) return 0;
+  const ok = await store.set("ledger", docId, {who:id, pts:total, kind:"game", game, reason: game==="maths" ? "Maths Sprint" : "Spelling Bee", day: todayKey(), ts: Date.now()});
+  return ok ? gained : 0;
+}
+
+// ---------- app state ----------
+const st = {
+  me: ls.get("evans-me", null),
+  tab: "home",
+  calSeg: "cal", calMonth: (() => { const d = new Date(); return new Date(d.getFullYear(), d.getMonth(), 1); })(),
+  calDay: todayKey(), mealWeek: mondayOf(new Date()),
+  jobSeg: "jobs", thread: null, play: null, game: null, unlockFor: null,
+};
+const me = () => M[st.me];
+const isParent = () => !!(me() && me().parent);
+
+let rq = 0;
+function scheduleRender(){ if(rq) return; rq = requestAnimationFrame(() => { rq = 0; render(); }); }
+
+function render(){
+  const root = $("#root");
+  if(!st.me || !M[st.me] || !token){ root.innerHTML = viewWelcome(); bindWelcome(); return; }
+  if(st.game) return; // a running learning game owns the screen
+  if(st.tab==="chat" && st.thread && $("#composer")){ $("#msgs").innerHTML = msgsHtml(st.thread); markRead(st.thread); return; }
+  const views = {home:viewHome, cal:viewCal, jobs:viewJobs, chat:viewChat, play:viewPlay};
+  root.innerHTML = (views[st.tab] || viewHome)() + (st.tab==="chat" && st.thread ? "" : navHtml());
+  if(st.tab==="chat" && st.thread){ markRead(st.thread); requestAnimationFrame(() => window.scrollTo(0, document.body.scrollHeight)); }
+}
+
+function go(tab, extra={}){ Object.assign(st, {tab, thread:null, play:null}, extra); render(); window.scrollTo(0,0); }
+
+// ---------- chrome ----------
+function header(title, sub){
+  const m = me();
+  return `<header class="top">
+    <button class="who-btn" data-act="profile" aria-label="Switch person">${av(m.id,"")}</button>
+    <div class="who grow"><b>${esc(title)}</b><span class="muted small">${esc(sub)}</span></div>
+    <span class="pill pts num" title="Your points">${ic("star")} ${balance(m.id)}</span>
+    <button class="iconbtn" style="position:relative" data-go="chat" aria-label="Messages">${ic("chat")}${unreadTotal()?`<span class="dot" style="top:-4px;right:-4px">${unreadTotal()}</span>`:""}</button>
+  </header>`;
+}
+function navHtml(){
+  const pending = isParent() ? S.jobs.filter(j => j.status==="pending").length + S.ledger.filter(l => l.kind==="reward" && l.status==="pending").length : 0;
+  const a = (t, icon, label, badge) => `<a role="button" tabindex="0" data-go="${t}" ${st.tab===t?'aria-current="page"':""}>${ic(icon)}<span>${label}</span>${badge?`<span class="dot">${badge}</span>`:""}</a>`;
+  return `<nav class="nav" aria-label="Main"><div class="nav-inner">
+    ${a("home","home","Home")}${a("cal","cal","Calendar")}
+    <button class="plus" data-act="quickadd" aria-label="Add something">${ic("plus")}</button>
+    ${a("jobs","jobs","Jobs",pending)}${a("play","play","Play")}
+  </div></nav>`;
+}
+
+// ---------- welcome ----------
+function viewWelcome(){
+  if(st.unlockFor){
+    const m = M[st.unlockFor];
+    return `<div class="welcome">
+      <div class="row"><button class="iconbtn" data-act="cancel-unlock" aria-label="Back">${ic("left")}</button><h2>Hi ${esc(m.label)}</h2></div>
+      <div class="card stack" style="align-items:center;text-align:center">
+        ${av(m.id,"lg")}
+        <p>${m.parent ? "Parents need their PIN so the kids can't approve their own jobs." : "Pop in your PIN so nobody else can be you."}</p>
+        <input id="pin" class="input" style="max-width:200px;text-align:center;letter-spacing:.4em;font-size:24px" inputmode="numeric" maxlength="4" autocomplete="off" aria-label="PIN">
+        <button class="btn accent" data-act="unlock">Unlock</button>
+        <p class="small muted">${hasOwnPin(m.id) ? "Forgot it? Mum or Dad can reset it." : "First time? Ask Dad for your starting PIN, then change it in your profile."}</p>
+      </div></div>`;
+  }
+  return `<div class="welcome">
+    <div class="hero"><img src="${HERO}" alt="The Evans family in matching Christmas pyjamas"><div class="cap"><p style="font-weight:700;opacity:.9">Welcome home</p><h1>The Evans Family</h1></div></div>
+    <h2>Who's using this phone?</h2>
+    <div class="pick">${FAM.map(m => `<button data-pick="${m.id}">${av(m.id,"lg")}<span>${esc(m.label)}</span><small>${m.parent?esc(m.name)+" · ":""}${m.age}</small></button>`).join("")}</div>
+    <p class="note">Your phone remembers who you are. Tap your photo at the top to switch.</p>
+  </div>`;
+}
+function bindWelcome(){ const p = $("#pin"); if(p) p.focus(); }
+
+// ---------- home ----------
+function viewHome(){
+  const m = me(), now = new Date(), tk = todayKey();
+  const hour = now.getHours(); const hi = hour<12 ? "Morning" : hour<17 ? "Afternoon" : "Evening";
+  const myJobs = S.jobs.filter(j => (j.status==="open") && (j.assignee===m.id || j.assignee==="anyone"));
+  const pendingJobs = S.jobs.filter(j => j.status==="pending");
+  let banner;
+  if(isParent() && pendingJobs.length) banner = {h:`${pendingJobs.length} job${pendingJobs.length>1?"s":""} waiting for your OK`, p:"Tick them off so the kids get their points.", b:"Review", go:"jobs"};
+  else if(myJobs.length) banner = {h:`You have ${myJobs.length} job${myJobs.length>1?"s":""} to do`, p:`Worth ${myJobs.reduce((a,j)=>a+(+j.pts||0),0)} points altogether.`, b:"See jobs", go:"jobs"};
+  else banner = {h:"All your jobs are done", p:"Earn more in Spelling Bee or Maths Sprint.", b:"Play", go:"play"};
+  const evs = eventsOn(tk);
+  const meal = S.meals.find(x => x.id===tk);
+  const mn = settings().movieNight;
+  const board = FAM.map(f => ({f, pts: weekEarned(f.id)})).sort((a,b) => b.pts-a.pts);
+  const top = Math.max(10, ...board.map(b => b.pts));
+  const recent = S.ledger.slice().sort((a,b) => b.ts-a.ts).slice(0,5);
+  return `<div class="stack">
+    ${header(`${hi}, ${m.label}`, `${DOW[now.getDay()]} ${now.getDate()} ${MONTHS[now.getMonth()]}`)}
+    <div class="banner"><div class="grow"><h3>${esc(banner.h)}</h3><p class="small">${esc(banner.p)}</p></div><button class="btn small" data-go="${banner.go}">${esc(banner.b)}</button></div>
+
+    <div class="section-head"><h2>Today</h2><button class="link" data-go="cal">Calendar</button></div>
+    ${evs.length ? `<div class="list">${evs.map(eventItem).join("")}</div>` : `<div class="empty">Nothing on today. Tap + to add something to the calendar.</div>`}
+
+    <div class="game-grid">
+      <button class="game g3" data-go="cal" data-seg="meals"><span class="ico">${ic("food")}</span><span><span class="small" style="font-weight:700">Dinner tonight</span><h3>${meal && meal.dinner ? esc(meal.dinner) : "Not planned yet"}</h3>${meal && meal.cook ? `<span class="small">${esc(who(meal.cook))} is cooking</span>` : ""}</span></button>
+      <button class="game g2" data-go="play" data-play="movie"><span class="ico">${ic("film")}</span><span><span class="small" style="font-weight:700">Movie night</span><h3>${mn && mn.title ? esc(mn.title) : "Pick a movie"}</h3>${mn && mn.date ? `<span class="small">${esc(niceDate(mn.date))}</span>` : ""}</span></button>
+    </div>
+
+    <div class="section-head"><h2>This week's points</h2><button class="link" data-go="jobs" data-seg="rewards">Rewards</button></div>
+    <div class="card list">${board.map((b,i) => `<div class="lb"><span class="muted num" style="font-weight:800">${i+1}</span><div class="row">${av(b.f.id,"sm")}<div class="grow"><b>${esc(b.f.label)}</b><div class="bar"><i style="width:${Math.round(b.pts/top*100)}%"></i></div></div></div><b class="num">${b.pts}</b></div>`).join("")}</div>
+
+    <div class="section-head"><h2>Recent</h2></div>
+    ${recent.length ? `<div class="list">${recent.map(l => `<div class="item">${av(l.who,"sm")}<div class="grow"><b>${esc(who(l.who))}</b> <span class="muted">${esc(l.reason||"")}</span></div><span class="pill ${l.pts>=0?"pts":"soft"} num">${l.pts>=0?"+":""}${l.pts}</span></div>`).join("")}</div>` : `<div class="empty">Points from jobs and games will show up here.</div>`}
+  </div>`;
+}
+
+// ---------- calendar ----------
+const eventsOn = k => S.events.filter(e => e.date===k).sort((a,b) => (a.time||"").localeCompare(b.time||""));
+function eventItem(e){
+  const ppl = (e.who && e.who.length) ? e.who : FAM.map(f=>f.id);
+  const color = ppl.length===1 ? ppl[0] : null;
+  return `<button class="item" style="text-align:left;${color?pc(color):""}" data-act="edit-event" data-id="${e.id}">
+    <span class="stripe" style="${color?pc(color):""}"></span>
+    <span class="time">${esc(niceTime(e.time))}</span>
+    <span class="grow"><b>${esc(e.title)}</b>${e.notes?`<br><span class="small muted">${esc(e.notes)}</span>`:""}</span>
+    <span class="faces">${ppl.length===FAM.length ? `<span class="tag" style="--pc:var(--accent)">Everyone</span>` : ppl.map(p=>av(p,"sm")).join("")}</span>
+  </button>`;
+}
+function viewCal(){
+  const seg = `<div class="seg" role="group" aria-label="Calendar or meals"><button data-calseg="cal" aria-pressed="${st.calSeg==="cal"}">Calendar</button><button data-calseg="meals" aria-pressed="${st.calSeg==="meals"}">Meals</button></div>`;
+  if(st.calSeg==="meals") return `<div class="stack">${header("Meal prep","Plan dinners and the prep list")}${seg}${mealsHtml()}</div>`;
+  const first = st.calMonth; const start = mondayOf(first); const tk = todayKey();
+  let cells = "";
+  for(let i=0;i<42;i++){
+    const d = addDays(start,i); const k = ymd(d);
+    if(i>=35 && d.getMonth()!==first.getMonth()) break;
+    const evs = eventsOn(k);
+    const dots = [...new Set(evs.flatMap(e => (e.who&&e.who.length===1)?e.who:["all"]))].slice(0,4);
+    cells += `<button data-day="${k}" class="${d.getMonth()!==first.getMonth()?"out":""} ${k===tk?"today":""}" aria-pressed="${k===st.calDay}" aria-label="${niceDate(k)}${evs.length?`, ${evs.length} events`:""}">${d.getDate()}<span class="dots">${dots.map(p => `<i style="--pc:${p==="all"?"var(--accent)":`var(--p-${p})`}"></i>`).join("")}</span></button>`;
+  }
+  const evs = eventsOn(st.calDay);
+  return `<div class="stack">
+    ${header("Family calendar", "Everyone can add to it")}
+    ${seg}
+    <div class="card">
+      <div class="row between" style="margin-bottom:10px"><button class="iconbtn" data-act="month" data-d="-1" aria-label="Previous month">${ic("left")}</button><h2>${MONTHS[first.getMonth()]} ${first.getFullYear()}</h2><button class="iconbtn" data-act="month" data-d="1" aria-label="Next month">${ic("right")}</button></div>
+      <div class="cal">${["Mon","Tue","Wed","Thu","Fri","Sat","Sun"].map(d=>`<span class="dow">${d}</span>`).join("")}${cells}</div>
+    </div>
+    <div class="section-head"><h2>${esc(niceDate(st.calDay))}</h2><button class="btn small accent" data-act="add-event">${ic("plus")} Add</button></div>
+    ${evs.length ? `<div class="list">${evs.map(eventItem).join("")}</div>` : `<div class="empty">Nothing planned. Tap Add to put something on.</div>`}
+  </div>`;
+}
+function eventSheet(e){
+  const isNew = !e; e = e || {date: st.calDay, time:"", who:[], title:"", notes:""};
+  openSheet(`<h2>${isNew?"Add to the calendar":"Edit event"}</h2>
+    <form id="f" class="stack" style="margin-top:12px">
+      <label class="f">What's on?<input class="input" id="ev-title" required maxlength="80" value="${esc(e.title)}" placeholder="Ari's footy game"></label>
+      <div class="row"><label class="f grow">Day<input class="input" id="ev-date" type="date" required value="${esc(e.date)}"></label><label class="f grow">Time<input class="input" id="ev-time" type="time" value="${esc(e.time)}"></label></div>
+      <div class="f"><span>Who's going? <span class="small">(none picked means everyone)</span></span>${peopleChips("ev-who", e.who||[], true)}</div>
+      <label class="f">Notes<textarea class="input" id="ev-notes" maxlength="300" placeholder="Bring snacks">${esc(e.notes||"")}</textarea></label>
+      <button class="btn accent block" type="submit">${isNew?"Add to calendar":"Save"}</button>
+      ${isNew?"":`<button class="btn ghost block" type="button" data-act="del-event" data-id="${e.id}">${ic("trash")} Delete</button>`}
+    </form>`, async () => {
+      const data = {title: $("#ev-title").value.trim(), date: $("#ev-date").value, time: $("#ev-time").value, who: chipVals("ev-who"), notes: $("#ev-notes").value.trim(), by: st.me};
+      if(!data.title || !data.date) return;
+      const ok = isNew ? await store.add("events", data) : await store.set("events", e.id, {...data, ts: e.ts||Date.now()});
+      if(ok){ closeSheet(); st.calDay = data.date; const d = parseYmd(data.date); st.calMonth = new Date(d.getFullYear(), d.getMonth(), 1); toast(isNew?"Added to the calendar":"Saved"); render(); }
+    });
+}
+
+// ---------- meals ----------
+function mealsHtml(){
+  const ws = st.mealWeek; const tk = todayKey();
+  const days = Array.from({length:7}, (_,i) => ymd(addDays(ws,i)));
+  const prep = S.prep.slice().sort((a,b) => (a.done-b.done) || (a.ts-b.ts));
+  return `<div class="card">
+      <div class="row between" style="margin-bottom:10px"><button class="iconbtn" data-act="week" data-d="-7" aria-label="Previous week">${ic("left")}</button><h2>Week of ${ws.getDate()} ${MON[ws.getMonth()]}</h2><button class="iconbtn" data-act="week" data-d="7" aria-label="Next week">${ic("right")}</button></div>
+      <div class="list">${days.map(k => { const d = parseYmd(k); const m = S.meals.find(x => x.id===k) || {};
+        return `<button class="meal ${k===tk?"today":""}" style="text-align:left;padding:4px 0" data-act="edit-meal" data-k="${k}">
+          <span class="d">${d.getDate()}<small>${DOW[d.getDay()]}</small></span>
+          <span style="min-width:0"><b>${m.dinner?esc(m.dinner):'<span class="muted">Add dinner</span>'}</b>${m.notes?`<br><span class="small muted">${esc(m.notes)}</span>`:""}</span>
+          ${m.cook?av(m.cook,"sm"):`<span class="muted">${ic("plus")}</span>`}
+        </button>`; }).join("")}</div>
+    </div>
+    <div class="section-head"><h2>Prep and shopping list</h2><button class="btn small accent" data-act="add-prep">${ic("plus")} Add</button></div>
+    ${prep.length ? `<div class="list">${prep.map(p => `<div class="item"><button class="check" data-act="prep-toggle" data-id="${p.id}" aria-pressed="${!!p.done}" aria-label="Done">${p.done?ic("check"):""}</button><span class="grow ${p.done?"done-text":""}">${esc(p.text)}</span>${av(p.by,"sm")}<button class="muted" data-act="prep-del" data-id="${p.id}" aria-label="Remove">${ic("x")}</button></div>`).join("")}</div>${prep.some(p=>p.done)?`<button class="btn ghost small" data-act="prep-clear">Clear ticked items</button>`:""}` : `<div class="empty">Add things to prep or buy, like "Marinate chicken Sunday" or "Rice".</div>`}`;
+}
+function mealSheet(k){
+  const m = S.meals.find(x => x.id===k) || {};
+  openSheet(`<h2>Dinner for ${esc(niceDate(k))}</h2>
+    <form id="f" class="stack" style="margin-top:12px">
+      <label class="f">What's for dinner?<input class="input" id="ml-dinner" maxlength="80" value="${esc(m.dinner||"")}" placeholder="Taco night"></label>
+      <div class="f"><span>Who's cooking?</span>${peopleChips("ml-cook", m.cook?[m.cook]:[], false)}</div>
+      <label class="f">Prep notes<textarea class="input" id="ml-notes" maxlength="300" placeholder="Defrost mince in the morning">${esc(m.notes||"")}</textarea></label>
+      <button class="btn accent block" type="submit">Save</button>
+    </form>`, async () => {
+      const data = {dinner: $("#ml-dinner").value.trim(), cook: chipVals("ml-cook")[0] || "", notes: $("#ml-notes").value.trim(), by: st.me, ts: Date.now()};
+      if(await store.set("meals", k, data)){ closeSheet(); toast("Dinner saved"); }
+    });
+}
+function prepSheet(){
+  openSheet(`<h2>Add to the prep list</h2><form id="f" class="stack" style="margin-top:12px">
+    <label class="f">What needs doing or buying?<input class="input" id="pr-text" required maxlength="100" placeholder="Chop veggies for the week"></label>
+    <button class="btn accent block" type="submit">Add</button></form>`, async () => {
+      const text = $("#pr-text").value.trim(); if(!text) return;
+      if(await store.add("prep", {text, done:false, by: st.me})){ closeSheet(); }
+    });
+}
+
+// ---------- jobs ----------
+function jobCard(j){
+  const a = j.assignee==="anyone" ? `<span class="tag" style="--pc:var(--accent)">Anyone</span>` : av(j.assignee,"sm");
+  let actions = "";
+  const mine = j.assignee==="anyone" || j.assignee===st.me;
+  if(j.status==="open" && mine) actions = `<button class="btn small" data-act="job-done" data-id="${j.id}">${ic("check")} Done it</button>`;
+  if(j.status==="pending"){
+    actions = isParent()
+      ? `<button class="btn small accent" data-act="job-approve" data-id="${j.id}">Approve</button><button class="btn small ghost" data-act="job-reject" data-id="${j.id}">Not yet</button>`
+      : `<span class="pill warn">Waiting for Mum or Dad</span>`;
+  }
+  if(j.status==="done") actions = `<span class="pill good">${ic("check")} ${esc(who(j.doneBy))} earned ${j.pts}</span>`;
+  const canDel = isParent() || j.by===st.me;
+  return `<div class="card" style="padding:14px">
+    <div class="row"><div class="grow"><b style="font-size:16px">${esc(j.title)}</b><p class="small muted">${j.due?`Due ${esc(niceDate(j.due))} · `:""}added by ${esc(who(j.by))}${j.status==="pending"?` · ${esc(who(j.doneBy))} says it's done`:""}</p></div><span class="pill pts num">${ic("star")} ${j.pts}</span></div>
+    <div class="row wrap" style="margin-top:10px">${a}<span class="grow"></span>${actions}${canDel && j.status!=="done"?`<button class="muted" data-act="job-del" data-id="${j.id}" aria-label="Delete job">${ic("trash")}</button>`:""}</div>
+  </div>`;
+}
+function viewJobs(){
+  const seg = `<div class="seg" role="group" aria-label="Jobs or rewards"><button data-jobseg="jobs" aria-pressed="${st.jobSeg==="jobs"}">Jobs</button><button data-jobseg="rewards" aria-pressed="${st.jobSeg==="rewards"}">Rewards</button></div>`;
+  if(st.jobSeg==="rewards") return `<div class="stack">${header("Rewards", "Swap points for treats")}${seg}${rewardsHtml()}</div>`;
+  const pending = S.jobs.filter(j => j.status==="pending").sort((a,b)=>b.ts-a.ts);
+  const open = S.jobs.filter(j => j.status==="open").sort((a,b) => (a.due||"9").localeCompare(b.due||"9"));
+  const weekStart = mondayOf(new Date()).getTime();
+  const done = S.jobs.filter(j => j.status==="done" && (j.doneAt||0)>=weekStart).sort((a,b)=>(b.doneAt||0)-(a.doneAt||0));
+  return `<div class="stack">
+    ${header("Jobs", "Do jobs, earn points")}
+    ${seg}
+    <div class="row"><button class="btn accent grow" data-act="add-job">${ic("plus")} Add a job</button>${isParent()?`<button class="btn ghost" data-act="bonus">${ic("star")} Give points</button>`:""}</div>
+    ${pending.length ? `<div class="section-head"><h2>Waiting for an OK</h2></div><div class="list">${pending.map(jobCard).join("")}</div>` : ""}
+    <div class="section-head"><h2>To do</h2><span class="muted small">${open.length} open</span></div>
+    ${open.length ? `<div class="list">${open.map(jobCard).join("")}</div>` : `<div class="empty">No jobs right now. Anyone can add one, and kids can suggest jobs they'd like to do for points.</div>`}
+    ${done.length ? `<div class="section-head"><h2>Done this week</h2></div><div class="list">${done.map(jobCard).join("")}</div>` : ""}
+  </div>`;
+}
+function jobSheet(){
+  const pts = [5,10,20,50];
+  openSheet(`<h2>Add a job</h2><form id="f" class="stack" style="margin-top:12px">
+    <label class="f">The job<input class="input" id="jb-title" required maxlength="80" placeholder="Empty the dishwasher"></label>
+    <div class="f"><span>Points</span><div class="chips" data-chips="jb-pts" data-single="1">${pts.map(p => `<button type="button" class="chip noimg" data-v="${p}" aria-pressed="${p===10}">${p} pts</button>`).join("")}</div></div>
+    <div class="f"><span>Who's it for?</span><div class="chips" data-chips="jb-who" data-single="1"><button type="button" class="chip noimg" data-v="anyone" aria-pressed="true">Anyone</button>${FAM.map(m => `<button type="button" class="chip" style="${pc(m.id)}" data-v="${m.id}" aria-pressed="false">${av(m.id,"sm")}${esc(m.label)}</button>`).join("")}</div></div>
+    <label class="f">Due (optional)<input class="input" id="jb-due" type="date"></label>
+    ${isParent()?"":`<p class="small muted">Mum or Dad will check it's done before the points land.</p>`}
+    <button class="btn accent block" type="submit">Add job</button></form>`, async () => {
+      const title = $("#jb-title").value.trim(); if(!title) return;
+      const data = {title, pts: +chipVals("jb-pts")[0] || 10, assignee: chipVals("jb-who")[0] || "anyone", due: $("#jb-due").value || "", status:"open", by: st.me};
+      if(await store.add("jobs", data)){ closeSheet(); toast("Job added"); }
+    });
+}
+async function approveJob(j, doneBy){
+  const ok = await store.update("jobs", j.id, {status:"done", doneBy, doneAt: Date.now(), approvedBy: st.me});
+  if(ok){ await store.set("ledger", "job_"+j.id, {who: doneBy, pts: +j.pts, kind:"job", reason: j.title, ts: Date.now()}); toast(`${who(doneBy)} earned ${j.pts} points`); }
+}
+function bonusSheet(){
+  openSheet(`<h2>Give points</h2><form id="f" class="stack" style="margin-top:12px">
+    <div class="f"><span>Who?</span>${peopleChips("bn-who", [], false)}</div>
+    <label class="f">Points (use a minus to take some away)<input class="input" id="bn-pts" inputmode="numeric" required value="10"></label>
+    <label class="f">What for?<input class="input" id="bn-why" required maxlength="80" placeholder="Helped Nan with the shopping"></label>
+    <button class="btn accent block" type="submit">Give points</button></form>`, async () => {
+      const w = chipVals("bn-who")[0], pts = parseInt($("#bn-pts").value,10), reason = $("#bn-why").value.trim();
+      if(!w || !pts || !reason){ toast("Pick a person, a number and a reason"); return; }
+      if(await store.add("ledger", {who:w, pts, kind:"bonus", reason, by: st.me})){ closeSheet(); toast(`${pts>0?"Gave":"Took"} ${Math.abs(pts)} points`); }
+    });
+}
+
+// ---------- rewards ----------
+const rewardList = () => [...DEFAULT_REWARDS.filter(d => !settings()["hide_"+d.id]), ...S.rewards.map(r => ({...r, custom:true}))].sort((a,b) => a.cost-b.cost);
+function rewardsHtml(){
+  const bal = balance(st.me);
+  const pend = S.ledger.filter(l => l.kind==="reward" && l.status==="pending").sort((a,b)=>b.ts-a.ts);
+  const minePend = pend.filter(l => l.who===st.me);
+  return `<div class="banner"><div class="grow"><p class="small" style="font-weight:700">Your points</p><h1 class="num">${bal}</h1></div>${ic("gift",'style="width:44px;height:44px"')}</div>
+    ${isParent() && pend.length ? `<div class="section-head"><h2>Rewards to hand out</h2></div><div class="list">${pend.map(l => `<div class="item">${av(l.who,"sm")}<div class="grow"><b>${esc(who(l.who))}</b> <span class="muted">${esc(l.reason)}</span></div><button class="btn small accent" data-act="reward-given" data-id="${l.id}">Given</button></div>`).join("")}</div>` : ""}
+    ${!isParent() && minePend.length ? `<div class="section-head"><h2>On the way</h2></div><div class="list">${minePend.map(l => `<div class="item"><div class="grow"><b>${esc(l.reason)}</b></div><span class="pill warn">Waiting for Mum or Dad</span></div>`).join("")}</div>` : ""}
+    <div class="section-head"><h2>Reward shop</h2>${isParent()?`<button class="link" data-act="add-reward">Add reward</button>`:""}</div>
+    <div class="list">${rewardList().map(r => `<div class="item"><div class="grow"><b>${esc(r.title)}</b><br><span class="small muted num">${r.cost} points</span></div>
+      ${isParent() ? `<button class="muted" data-act="reward-del" data-id="${r.id}" data-custom="${r.custom?1:0}" aria-label="Remove reward">${ic("trash")}</button>` : `<button class="btn small ${bal>=r.cost?"accent":""}" data-act="redeem" data-id="${r.id}" ${bal>=r.cost?"":"disabled"}>${bal>=r.cost?"Get it":`${r.cost-bal} to go`}</button>`}</div>`).join("")}</div>
+    <p class="note">Points come off straight away. Mum or Dad taps Given when you get the reward.</p>`;
+}
+function rewardSheet(){
+  openSheet(`<h2>Add a reward</h2><form id="f" class="stack" style="margin-top:12px">
+    <label class="f">Reward<input class="input" id="rw-title" required maxlength="80" placeholder="Maccas run"></label>
+    <label class="f">Cost in points<input class="input" id="rw-cost" inputmode="numeric" required value="100"></label>
+    <button class="btn accent block" type="submit">Add reward</button></form>`, async () => {
+      const title = $("#rw-title").value.trim(), cost = parseInt($("#rw-cost").value,10);
+      if(!title || !(cost>0)) return;
+      if(await store.add("rewards", {title, cost, by: st.me})){ closeSheet(); }
+    });
+}
+
+// ---------- chat ----------
+const threadOf = m => m.to==="family" ? "family" : [m.from, m.to].sort().join("-");
+const threadKey = other => other==="family" ? "family" : [st.me, other].sort().join("-");
+const threadMsgs = key => S.messages.filter(m => threadOf(m)===key && (key==="family" || key.split("-").includes(st.me))).sort((a,b)=>a.ts-b.ts);
+function lastRead(key){ return ls.get(`evans-read-${st.me}`, {})[key] || 0; }
+function markRead(key){ const r = ls.get(`evans-read-${st.me}`, {}); const last = threadMsgs(key).slice(-1)[0]; if(last && (r[key]||0) < last.ts){ r[key] = last.ts; ls.set(`evans-read-${st.me}`, r); } }
+function unreadIn(key){ const lr = lastRead(key); return threadMsgs(key).filter(m => m.from!==st.me && m.ts>lr).length; }
+function unreadTotal(){ if(!st.me) return 0; return ["family", ...FAM.filter(f=>f.id!==st.me).map(f=>threadKey(f.id))].reduce((a,k)=>a+unreadIn(k),0); }
+function viewChat(){
+  if(st.thread) return threadView(st.thread);
+  const rows = [{key:"family", title:"Evans Family", face:`<span class="faces">${FAM.slice(0,3).map(f=>av(f.id,"sm")).join("")}</span>`},
+    ...FAM.filter(f => f.id!==st.me).map(f => ({key: threadKey(f.id), title: f.label, face: av(f.id)}))];
+  return `<div class="stack">${header("Messages","Family chat and one-on-ones")}
+    <div class="list">${rows.map(r => { const ms = threadMsgs(r.key); const last = ms[ms.length-1]; const u = unreadIn(r.key);
+      return `<button class="item" style="text-align:left" data-thread="${r.key}">${r.face}<span class="grow"><b>${esc(r.title)}</b><br><span class="small muted" style="display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${last?`${last.from===st.me?"You":esc(who(last.from))}: ${esc(last.text)}`:"Say hi"}</span></span>${u?`<span class="dot" style="position:static">${u}</span>`:last?`<span class="small muted">${ago(last.ts)}</span>`:""}</button>`; }).join("")}</div>
+  </div>`;
+}
+function msgsHtml(key){
+  const ms = threadMsgs(key);
+  if(!ms.length) return `<div class="empty">No messages yet. Start the conversation.</div>`;
+  return ms.map((m,i) => { const mine = m.from===st.me; const prev = ms[i-1]; const showName = !mine && key==="family" && (!prev || prev.from!==m.from);
+    return `<div class="mrow ${mine?"me":""}">${!mine?(showName||key!=="family"?av(m.from,"sm"):'<span style="width:28px;flex:none"></span>'):""}<div style="display:flex;flex-direction:column;${mine?"align-items:flex-end":""};max-width:80%">${showName?`<span class="mmeta">${esc(who(m.from))}</span>`:""}<div class="bubble ${mine?"me":"them"}">${esc(m.text)}</div><span class="mmeta">${ago(m.ts)}</span></div></div>`; }).join("");
+}
+function threadView(key){
+  const title = key==="family" ? "Evans Family" : who(key.split("-").find(x => x!==st.me));
+  return `<div class="stack">
+    <header class="top"><button class="iconbtn" data-act="back-chat" aria-label="Back to messages">${ic("left")}</button><div class="who grow"><b>${esc(title)}</b><span class="muted small">${key==="family"?"Everyone sees these":"Just the two of you"}</span></div></header>
+    <div class="msgs" id="msgs">${msgsHtml(key)}</div>
+  </div>
+  <div class="composer"><form id="composer"><input class="input" id="msg-text" maxlength="1000" placeholder="Message" autocomplete="off" aria-label="Message"><button class="btn accent" type="submit" aria-label="Send">${ic("send")}</button></form></div>`;
+}
+
+// ---------- play ----------
+function viewPlay(){
+  if(st.play==="movie") return movieView();
+  if(st.play==="ttt") return tttView();
+  const m = me();
+  const lvl = learnLevel();
+  return `<div class="stack">
+    ${header("Play", "Games for the whole family")}
+    <div class="game-grid">
+      <button class="game g2" data-play="movie"><span class="ico">${ic("film")}</span><span><h3>Movie night</h3><span class="small">Suggest, vote, pick</span></span></button>
+      <button class="game g1" data-play="ttt"><span class="ico">${ic("grid")}</span><span><h3>Noughts &amp; crosses</h3><span class="small">Play each other live</span></span></button>
+      <button class="game g3" data-act="start-spell"><span class="ico">${ic("abc")}</span><span><h3>Spelling Bee</h3><span class="small num">${gameToday(m.id,"spelling")}/${GAME_CAP} pts today</span><span class="bar" style="display:block;margin-top:6px"><i style="width:${gameToday(m.id,"spelling")/GAME_CAP*100}%"></i></span></span></button>
+      <button class="game g4" data-act="start-maths"><span class="ico">${ic("calc")}</span><span><h3>Maths Sprint</h3><span class="small num">${gameToday(m.id,"maths")}/${GAME_CAP} pts today</span><span class="bar" style="display:block;margin-top:6px"><i style="width:${gameToday(m.id,"maths")/GAME_CAP*100}%"></i></span></span></button>
+    </div>
+    <div class="card stack">
+      <div class="row between"><h2>Learning level</h2><span class="tag" style="--pc:var(--accent)">${["","Starter","Middle","Senior"][lvl]}</span></div>
+      <div class="seg" role="group" aria-label="Level">${[1,2,3].map(l => `<button data-level="${l}" aria-pressed="${l===lvl}">${["","Starter","Middle","Senior"][l]}</button>`).join("")}</div>
+      <p class="small muted">Spelling Bee gives 2 points a word and Maths Sprint 1 point an answer, up to ${GAME_CAP} points each per day.</p>
+    </div>
+  </div>`;
+}
+function learnLevel(){ const m = me(); return ls.get(`evans-level-${m.id}`, m.level || 3); }
+
+// movie night
+function movieView(){
+  const mn = settings().movieNight || {};
+  const list = S.movies.filter(x => !x.watched).map(x => ({...x, n: Object.values(x.votes||{}).filter(Boolean).length})).sort((a,b) => b.n-a.n || a.ts-b.ts);
+  return `<div class="stack">
+    <header class="top"><button class="iconbtn" data-act="back-play" aria-label="Back">${ic("left")}</button><div class="who grow"><b>Movie night</b><span class="muted small">Everyone votes, then spin</span></div></header>
+    <div class="spin" id="spin">${mn.title ? esc(mn.title) : "No movie picked yet"}</div>
+    ${mn.title ? `<p class="note">${esc(niceDate(mn.date))} · picked by ${esc(who(mn.by))}</p>` : ""}
+    <div class="row"><button class="btn accent grow" data-act="spin" ${list.length?"":"disabled"}>Pick the movie</button><button class="btn ghost" data-act="add-movie">${ic("plus")} Suggest</button></div>
+    <div class="section-head"><h2>Suggestions</h2><span class="muted small">Tap the heart to vote</span></div>
+    ${list.length ? `<div class="list">${list.map(x => { const voted = x.votes && x.votes[st.me];
+      return `<div class="item"><div class="grow"><b>${esc(x.title)}</b><br><span class="small muted">from ${esc(who(x.by))}</span></div><span class="faces">${Object.keys(x.votes||{}).filter(k=>x.votes[k]).map(k=>av(k,"sm")).join("")}</span><button class="iconbtn" style="${voted?"color:var(--bad)":""}" data-act="vote" data-id="${x.id}" aria-pressed="${!!voted}" aria-label="Vote for ${esc(x.title)}">${ic("heart", voted?'style="fill:currentColor"':"")}</button>${isParent()||x.by===st.me?`<button class="muted" data-act="movie-del" data-id="${x.id}" aria-label="Remove">${ic("x")}</button>`:""}</div>`; }).join("")}</div>` : `<div class="empty">No suggestions yet. Everyone can add a movie, then vote.</div>`}
+    <p class="note">The spin favours movies with more votes. The winner goes on the calendar for Friday at 7 pm.</p>
+  </div>`;
+}
+function movieSheet(){
+  openSheet(`<h2>Suggest a movie</h2><form id="f" class="stack" style="margin-top:12px">
+    <label class="f">Movie<input class="input" id="mv-title" required maxlength="80" placeholder="Paddington 2"></label>
+    <button class="btn accent block" type="submit">Add suggestion</button></form>`, async () => {
+      const title = $("#mv-title").value.trim(); if(!title) return;
+      if(await store.add("movies", {title, by: st.me, votes: {[st.me]: true}, watched:false})){ closeSheet(); }
+    });
+}
+async function spinMovie(){
+  const list = S.movies.filter(x => !x.watched).map(x => ({...x, n: Object.values(x.votes||{}).filter(Boolean).length}));
+  if(!list.length) return;
+  const bag = list.flatMap(x => Array(1 + x.n * 2).fill(x));
+  const winner = pick(bag); const el = $("#spin");
+  const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  for(let i=0; i<(reduce?1:18); i++){ el.textContent = pick(list).title; await new Promise(r => setTimeout(r, 60 + i*12)); }
+  el.textContent = winner.title;
+  const date = nextFriday();
+  await saveSettings({movieNight: {title: winner.title, date, by: st.me}});
+  const evId = "movie_" + date;
+  await store.set("events", evId, {title:`Movie night: ${winner.title}`, date, time:"19:00", who:[], notes:"Popcorn time", by: st.me, ts: Date.now()});
+  await store.update("movies", winner.id, {watched: true});
+  toast(`${winner.title} it is!`);
+}
+
+// noughts & crosses
+const LINES = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+const tttGame = () => S.games.find(g => g.id==="ttt");
+function tttWinner(b){ for(const l of LINES){ const [a,c,d] = l; if(b[a]!=="." && b[a]===b[c] && b[a]===b[d]) return {mark:b[a], line:l}; } return b.includes(".") ? null : {mark:"draw", line:[]}; }
+function tttView(){
+  const g = tttGame();
+  const back = `<header class="top"><button class="iconbtn" data-act="back-play" aria-label="Back">${ic("left")}</button><div class="who grow"><b>Noughts &amp; crosses</b><span class="muted small">Each player on their own phone, or share one</span></div></header>`;
+  if(!g || !g.x){
+    return `<div class="stack">${back}<div class="card stack"><h2>Who do you want to play?</h2>${peopleChips("ttt-opp", [], false, [st.me])}
+      <label class="row small"><input type="checkbox" id="ttt-same"> We're sharing one phone</label>
+      <button class="btn accent block" data-act="ttt-new">Start game</button></div>${tttScores()}</div>`;
+  }
+  const b = g.board.split(""); const w = tttWinner(b);
+  const turnId = g.turn==="x" ? g.x : g.o;
+  const status = w ? (w.mark==="draw" ? "It's a draw" : `${who(w.mark==="x"?g.x:g.o)} wins!`) : `${turnId===st.me ? "Your" : who(turnId)+"'s"} turn`;
+  return `<div class="stack">${back}
+    <div class="row between card"><div class="row">${av(g.x)}<b class="x" style="color:var(--accent);font-size:22px">X</b></div><b>vs</b><div class="row"><b style="color:var(--p-ruby);font-size:22px">O</b>${av(g.o)}</div></div>
+    <h2 style="text-align:center">${esc(status)}</h2>
+    <div class="ttt">${b.map((c,i) => `<button data-cell="${i}" class="${c==="x"?"x":c==="o"?"o":""} ${w&&w.line.includes(i)?"win":""}" aria-label="Square ${i+1}${c!=="."?", "+c.toUpperCase():""}">${c==="."?"":c.toUpperCase()}</button>`).join("")}</div>
+    <div class="row"><button class="btn accent grow" data-act="ttt-again">${w?"Play again":"Restart"}</button><button class="btn ghost" data-act="ttt-quit">New players</button></div>
+    ${tttScores()}
+  </div>`;
+}
+function tttScores(){
+  const sc = (tttGame() && tttGame().scores) || {};
+  const rows = FAM.filter(f => sc[f.id]).sort((a,b)=>sc[b.id]-sc[a.id]);
+  return rows.length ? `<div class="card list"><h3>Wins</h3>${rows.map(f => `<div class="row">${av(f.id,"sm")}<b class="grow">${esc(f.label)}</b><b class="num">${sc[f.id]}</b></div>`).join("")}</div>` : "";
+}
+async function tttMove(i){
+  const g = tttGame(); if(!g || !g.x) return;
+  const b = g.board.split(""); if(b[i]!=="." || tttWinner(b)) return;
+  const turnId = g.turn==="x" ? g.x : g.o;
+  if(!g.same && turnId!==st.me){ toast(st.me===g.x||st.me===g.o ? `Waiting for ${who(turnId)}` : "You're watching this one"); return; }
+  b[i] = g.turn; const w = tttWinner(b);
+  const patch = {board: b.join(""), turn: g.turn==="x"?"o":"x", ts: Date.now()};
+  if(w && w.mark!=="draw"){ const wid = w.mark==="x"?g.x:g.o; patch.scores = {[wid]: ((g.scores||{})[wid]||0)+1}; }
+  await store.update("games","ttt", patch);
+}
+
+// ---------- learning games ----------
+const WORDS = {
+  1: ["because","friend","beautiful","different","believe","February","library","address","answer","calendar","island","knowledge","minute","neighbour","often","people","question","remember","separate","surprise","through","thought","weird","favourite","Wednesday","environment","height","interrupt","length","opposite","special","straight","caught","guard","heard","business","century","certain","disappear","exercise"],
+  2: ["achieve","ancient","apparent","bargain","bruise","category","committee","conscience","curiosity","definite","desperate","embarrass","existence","foreign","guarantee","harass","immediately","independent","leisure","marvellous","mischievous","occasion","parliament","persuade","privilege","recommend","restaurant","rhythm","signature","sincerely","temperature","vegetable","yacht","awkward","necessary","sufficient","controversy","programme","develop","excellent"],
+  3: ["accommodate","acquaintance","bureaucracy","conscientious","connoisseur","entrepreneur","exaggerate","fluorescent","handkerchief","hierarchy","idiosyncrasy","liaison","millennium","miniature","occurrence","onomatopoeia","perseverance","questionnaire","reminiscence","surveillance","threshold","unnecessary","vacuum","silhouette","pharaoh","playwright","manoeuvre","pronunciation","definitely","gauge","rhythmical","catastrophe","convalescence","disappoint","inoculate","supersede","colleague","bourgeois","camouflage","mediocre"],
+};
+let voices = [];
+function loadVoices(){ try{ voices = speechSynthesis.getVoices(); }catch{} }
+const canSpeak = () => "speechSynthesis" in window && typeof SpeechSynthesisUtterance === "function";
+function say(text){
+  if(!canSpeak()) return;
+  try{ speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(text); u.rate = .85;
+    const v = voices.find(v => /en-AU/i.test(v.lang)) || voices.find(v => /en-GB/i.test(v.lang)) || voices.find(v => /^en/i.test(v.lang)); if(v) u.voice = v; u.lang = v ? v.lang : "en-AU";
+    speechSynthesis.speak(u); }catch{}
+}
+function makeGaps(w){ const idx = shuffle([...w].map((_,i)=>i).filter(i => i>0)).slice(0, Math.max(2, Math.round(w.length/4))); return [...w].map((c,i) => idx.includes(i) ? "_" : c); }
+function scramble(w){ let s; let n = 0; do { s = shuffle([...w.toLowerCase()]).join(""); } while(s===w.toLowerCase() && n++<10); return s; }
+
+function startSpelling(){
+  const words = shuffle(WORDS[learnLevel()]).slice(0,10);
+  const modes = canSpeak() ? ["hear","gaps","hear","jumble"] : ["gaps","jumble"];
+  st.game = {kind:"spelling", words, i:0, score:0, modes, wrong:[]};
+  spellRound();
+}
+function spellRound(){
+  const g = st.game; const w = g.words[g.i]; g.mode = g.modes[g.i % g.modes.length];
+  if(g.mode==="gaps") g.shape = makeGaps(w); if(g.mode==="jumble") g.shape = [...scramble(w)];
+  const prompt = g.mode==="hear" ? `<p class="muted" style="text-align:center">Listen, then type the word</p><button class="btn accent block" data-act="say">${ic("sound")} Hear the word</button>`
+    : g.mode==="gaps" ? `<p class="muted" style="text-align:center">Fill in the missing letters. Type the whole word.</p><div class="letters">${g.shape.map(c => `<span class="${c==="_"?"gap":""}">${c==="_"?"?":esc(c)}</span>`).join("")}</div>`
+    : `<p class="muted" style="text-align:center">Unscramble the letters</p><div class="letters">${g.shape.map(c => `<span>${esc(c)}</span>`).join("")}</div>`;
+  $("#root").innerHTML = `<div class="stack">
+    <header class="top"><button class="iconbtn" data-act="quit-game" aria-label="Stop playing">${ic("x")}</button><div class="who grow"><b>Spelling Bee</b><span class="muted small num">Word ${g.i+1} of ${g.words.length}</span></div><span class="pill pts num">${ic("star")} ${g.score*2}</span></header>
+    <div class="bar"><i style="width:${g.i/g.words.length*100}%"></i></div>
+    <div class="card stack">${prompt}
+      <form id="spell-form" class="stack"><input class="input" id="spell-in" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="Your spelling" style="font-size:22px;text-align:center"><button class="btn block" type="submit">Check</button></form>
+      <div id="spell-fb" aria-live="polite"></div></div>
+  </div>`;
+  if(g.mode==="hear") setTimeout(() => say(w), 250);
+  $("#spell-in").focus();
+}
+function spellCheck(){
+  const g = st.game; if(g.locked) return; const w = g.words[g.i]; const v = $("#spell-in").value.trim();
+  if(!v) return; g.locked = true;
+  const ok = v.toLowerCase() === w.toLowerCase();
+  if(ok) g.score++; else g.wrong.push(w);
+  $("#spell-fb").innerHTML = ok ? `<p class="pill good" style="width:100%;justify-content:center">${ic("check")} Nailed it! +2</p>` : `<div class="stack" style="align-items:center"><p class="pill warn">Not quite</p><p>It's spelt <b style="font-size:20px">${esc(w)}</b></p></div>`;
+  $("#spell-in").readOnly = true;
+  $("#spell-form button").textContent = g.i+1 < g.words.length ? "Next word" : "See score";
+  g.next = true;
+}
+async function finishGame(kind, correct, perPoint, details){
+  const id = st.me; const earned = await awardGame(id, kind, correct*perPoint);
+  const capped = gameToday(id, kind) >= GAME_CAP;
+  $("#root").innerHTML = `<div class="stack" style="padding-top:20px">
+    <div class="banner" style="flex-direction:column;text-align:center;padding:26px 18px"><p style="font-weight:700">${kind==="maths"?"Maths Sprint":"Spelling Bee"} finished</p><h1 class="num" style="font-size:52px">${correct}</h1><p>${kind==="maths"?"correct answers":"words right out of 10"}</p></div>
+    <div class="card stack" style="text-align:center"><h2>${earned>0?`+${earned} points`:"No new points"}</h2><p class="muted small">${capped?`You've hit today's ${GAME_CAP} point limit for this game. Come back tomorrow for more.`:`You can earn up to ${GAME_CAP} points a day here.`}</p></div>
+    ${details||""}
+    <div class="row"><button class="btn accent grow" data-act="${kind==="maths"?"start-maths":"start-spell"}">Play again</button><button class="btn ghost" data-act="quit-game">Done</button></div>
+  </div>`;
+  st.game = {kind:"done"};
+}
+
+function mathsQ(level){
+  const t = level===1 ? pick(["mul","mul","add","sub","div"]) : level===2 ? pick(["mul","neg","pct","sq","frac","order"]) : pick(["lin","pct","sqrt","pow","neg","order","lin"]);
+  let q, a;
+  switch(t){
+    case "mul": { const x = ri(2,12), y = ri(2,12); q = `${x} × ${y}`; a = x*y; break; }
+    case "add": { const x = ri(12,99), y = ri(12,99); q = `${x} + ${y}`; a = x+y; break; }
+    case "sub": { const x = ri(30,99), y = ri(11,x-1); q = `${x} − ${y}`; a = x-y; break; }
+    case "div": { const y = ri(2,12), a0 = ri(2,12); q = `${y*a0} ÷ ${y}`; a = a0; break; }
+    case "neg": { const x = ri(-20,20), y = ri(-20,20); const op = pick(["+","−","×"]); q = `${x<0?`(${x})`:x} ${op} ${y<0?`(${y})`:y}`; a = op==="+"?x+y:op==="−"?x-y:x*y; break; }
+    case "pct": { const p = pick([10,20,25,50,75,5]); const n = pick([20,40,60,80,120,200,240,400,360]); q = `${p}% of ${n}`; a = p*n/100; if(!Number.isInteger(a)) return mathsQ(level); break; }
+    case "sq": { const x = ri(2,15); q = `${x}²`; a = x*x; break; }
+    case "frac": { const d = pick([2,3,4,5,8]); const nn = ri(1,d-1); const tot = d*ri(2,12); q = `${nn}/${d} of ${tot}`; a = nn*tot/d; break; }
+    case "order": { const x = ri(2,9), y = ri(2,9), z = ri(2,9); q = `${x} + ${y} × ${z}`; a = x + y*z; break; }
+    case "sqrt": { const x = ri(4,20); q = `√${x*x}`; a = x; break; }
+    case "pow": { const b = pick([2,3,5]); const e = b===2?ri(3,8):b===3?ri(2,4):ri(2,3); q = `${b}^${e}`; a = b**e; break; }
+    case "lin": { const x = ri(-9,12), m = ri(2,9), c = ri(-15,20); q = `${m}x ${c<0?"−":"+"} ${Math.abs(c)} = ${m*x+c}`; a = x; break; }
+  }
+  return {q, a, solve: t==="lin"};
+}
+function startMaths(){
+  st.game = {kind:"maths", level: learnLevel(), score:0, asked:0, ans:"", end: Date.now()+60000, missed:[]};
+  st.game.cur = mathsQ(st.game.level);
+  $("#root").innerHTML = `<div class="stack">
+    <header class="top"><button class="iconbtn" data-act="quit-game" aria-label="Stop playing">${ic("x")}</button><div class="who grow"><b>Maths Sprint</b><span class="muted small">As many as you can in 60 seconds</span></div><span class="timer" id="m-timer">60</span></header>
+    <div class="bar"><i id="m-bar" style="width:100%"></i></div>
+    <div class="row between"><span class="pill pts num" id="m-score">${ic("star")} 0</span><span class="muted small" id="m-hint"></span></div>
+    <div class="big-q" id="m-q"></div>
+    <div class="answer" id="m-ans" aria-live="polite"></div>
+    <div class="keypad">${["7","8","9","4","5","6","1","2","3","−","0","⌫"].map(k => `<button data-key="${k}" aria-label="${k==="⌫"?"Delete":k==="−"?"Minus":k}">${k}</button>`).join("")}<button class="go" data-key="ok" style="grid-column:1/-1">Enter</button></div>
+  </div>`;
+  mathsShow();
+  st.game.timer = setInterval(mathsTick, 200);
+}
+function mathsShow(){ const g = st.game; $("#m-q").textContent = g.cur.q + (g.cur.solve ? "" : " ="); $("#m-hint").textContent = g.cur.solve ? "Find x" : ""; $("#m-ans").textContent = g.ans || " "; }
+function mathsTick(){
+  const g = st.game; if(!g || g.kind!=="maths"){ return; }
+  const left = Math.max(0, g.end - Date.now());
+  $("#m-timer").textContent = Math.ceil(left/1000); $("#m-bar").style.width = (left/600)+"%";
+  if(left<=0){ clearInterval(g.timer); const miss = g.missed.slice(-5);
+    finishGame("maths", g.score, 1, miss.length?`<div class="card list"><h3>Ones to practise</h3>${miss.map(m=>`<div class="row between"><span>${esc(m.q)}</span><b class="num">${m.solve?"x = ":""}${m.a}</b></div>`).join("")}</div>`:""); }
+}
+function mathsKey(k){
+  const g = st.game; if(!g || g.kind!=="maths") return;
+  if(k==="⌫") g.ans = g.ans.slice(0,-1);
+  else if(k==="−"){ g.ans = g.ans.startsWith("-") ? g.ans.slice(1) : "-"+g.ans; }
+  else if(k==="ok"){
+    if(!g.ans || g.ans==="-") return;
+    const ok = parseInt(g.ans,10) === g.cur.a; const el = $("#m-ans");
+    el.classList.remove("flash-good","flash-bad"); void el.offsetWidth; el.classList.add(ok?"flash-good":"flash-bad");
+    if(ok) g.score++; else g.missed.push(g.cur);
+    $("#m-score").innerHTML = `${ic("star")} ${g.score}`;
+    g.ans = ""; g.cur = mathsQ(g.level);
+  } else if(g.ans.length < 6) g.ans += k;
+  mathsShow();
+}
+
+// ---------- sheets ----------
+let sheetSubmit = null;
+function openSheet(html, onSubmit){
+  sheetSubmit = onSubmit;
+  $("#sheet-host").innerHTML = `<div class="scrim" data-act="scrim"><div class="sheet" role="dialog" aria-modal="true"><div class="grab"></div>${html}</div></div>`;
+  const f = $("#sheet-host input:not([type=checkbox]):not([type=date]):not([type=time])"); if(f) setTimeout(() => f.focus(), 50);
+}
+function closeSheet(){ $("#sheet-host").innerHTML = ""; sheetSubmit = null; }
+function peopleChips(name, selected, multi, exclude=[]){
+  return `<div class="chips" data-chips="${name}" ${multi?"":'data-single="1"'}>${FAM.filter(m => !exclude.includes(m.id)).map(m => `<button type="button" class="chip" style="${pc(m.id)}" data-v="${m.id}" aria-pressed="${selected.includes(m.id)}">${av(m.id,"sm")}${esc(m.label)}</button>`).join("")}</div>`;
+}
+const chipVals = name => [...document.querySelectorAll(`[data-chips="${name}"] [aria-pressed="true"]`)].map(b => b.dataset.v);
+
+function profileSheet(){
+  const m = me();
+  openSheet(`<div class="row">${av(m.id,"lg")}<div class="grow"><h2>${esc(m.label)}</h2><p class="muted small">${m.parent?esc(m.name)+" · ":""}${balance(m.id)} points</p></div></div>
+    <div class="stack" style="margin-top:16px">
+      <button class="btn block" data-act="switch">${ic("swap")} Switch person</button>
+      <button class="btn ghost block" data-act="go-play">${ic("play")} Games and movie night</button>
+      <form id="f" class="stack card flat"><h3>${m.parent ? "Change or reset a PIN" : "Change my PIN"}</h3>${m.parent ? peopleChips("pin-who", [m.id], false) : ""}<input class="input" id="new-pin" inputmode="numeric" maxlength="4" pattern="[0-9]{4}" placeholder="New 4-digit PIN" required aria-label="New PIN"><button class="btn small" type="submit">Save PIN</button></form>
+      <p class="note">Everything here is shared with the family.</p>
+    </div>`, async () => {
+      const p = $("#new-pin").value.trim(); if(!/^\d{4}$/.test(p)){ toast("Use 4 numbers"); return; }
+      const whoFor = m.parent ? (chipVals("pin-who")[0] || m.id) : m.id;
+      try{ await api("/api/pin", {member: whoFor, pin: p}); if(!customPins.includes(whoFor)) customPins.push(whoFor); closeSheet(); toast(whoFor===m.id ? "PIN changed" : `${who(whoFor)}'s PIN changed`); }
+      catch(e){ if(!e.quiet) toast(e.msg || "Couldn't change the PIN. Try again."); }
+    });
+}
+function quickAddSheet(){
+  openSheet(`<h2>Add something</h2><div class="game-grid" style="margin-top:14px">
+    <button class="game g2" style="min-height:110px" data-act="qa" data-v="event"><span class="ico">${ic("cal")}</span><h3>Event</h3></button>
+    <button class="game g1" style="min-height:110px" data-act="qa" data-v="job"><span class="ico">${ic("jobs")}</span><h3>Job</h3></button>
+    <button class="game g3" style="min-height:110px" data-act="qa" data-v="meal"><span class="ico">${ic("food")}</span><h3>Dinner</h3></button>
+    <button class="game g4" style="min-height:110px" data-act="qa" data-v="msg"><span class="ico">${ic("chat")}</span><h3>Message</h3></button>
+  </div>`, null);
+}
+
+let toastT;
+function toast(t){ let el = $("#toast"); if(!el){ el = document.createElement("div"); el.id = "toast"; el.className = "toast"; el.setAttribute("role","status"); document.body.appendChild(el); } el.textContent = t; el.hidden = false; clearTimeout(toastT); toastT = setTimeout(() => el.hidden = true, 2600); }
+
+// ---------- events ----------
+document.addEventListener("click", async ev => {
+  const t = ev.target.closest("[data-act],[data-go],[data-pick],[data-day],[data-calseg],[data-jobseg],[data-thread],[data-play],[data-level],[data-cell],[data-key],[data-chips] .chip");
+  if(!t) return;
+  // chip toggles inside sheets
+  const chipWrap = t.closest("[data-chips]");
+  if(chipWrap && t.classList.contains("chip")){
+    if(chipWrap.dataset.single){ chipWrap.querySelectorAll(".chip").forEach(c => c.setAttribute("aria-pressed", String(c===t))); }
+    else t.setAttribute("aria-pressed", String(t.getAttribute("aria-pressed")!=="true"));
+    return;
+  }
+  const d = t.dataset;
+  if(d.pick){ st.unlockFor = d.pick; render(); return; }
+  if(d.go){ const extra = {}; if(d.seg && d.go==="cal") extra.calSeg = d.seg; if(d.seg && d.go==="jobs") extra.jobSeg = d.seg; go(d.go, extra); if(d.play){ st.play = d.play; render(); } return; }
+  if(d.day){ st.calDay = d.day; render(); return; }
+  if(d.calseg){ st.calSeg = d.calseg; render(); return; }
+  if(d.jobseg){ st.jobSeg = d.jobseg; render(); return; }
+  if(d.thread){ st.thread = d.thread; render(); window.scrollTo(0, document.body.scrollHeight); return; }
+  if(d.play){ st.play = d.play; render(); window.scrollTo(0,0); return; }
+  if(d.level){ ls.set(`evans-level-${st.me}`, +d.level); render(); return; }
+  if(d.cell){ tttMove(+d.cell); return; }
+  if(d.key){ mathsKey(d.key); return; }
+  const id = d.id;
+  switch(d.act){
+    case "scrim": if(ev.target===t) closeSheet(); break;
+    case "cancel-unlock": st.unlockFor = null; render(); break;
+    case "unlock": { const member = st.unlockFor, pin = $("#pin").value; t.disabled = true;
+      try{ const j = await api("/api/login", {member, pin}); token = j.token; ls.set("evans-token", token); st.me = member; st.unlockFor = null; ls.set("evans-me", member); ver = 0; go("home"); sync(); }
+      catch(e){ t.disabled = false; toast(e.msg || "Couldn't reach the family app. Check your connection."); $("#pin").value = ""; $("#pin").focus(); }
+      break; }
+    case "profile": profileSheet(); break;
+    case "switch": logout(); loadPins(); break;
+    case "go-play": closeSheet(); go("play"); break;
+    case "quickadd": quickAddSheet(); break;
+    case "qa": closeSheet();
+      if(d.v==="event") eventSheet(); else if(d.v==="job") jobSheet(); else if(d.v==="meal") mealSheet(todayKey()); else go("chat");
+      break;
+    case "month": st.calMonth = new Date(st.calMonth.getFullYear(), st.calMonth.getMonth() + (+d.d), 1); render(); break;
+    case "week": st.mealWeek = addDays(st.mealWeek, +d.d); render(); break;
+    case "add-event": eventSheet(); break;
+    case "edit-event": eventSheet(S.events.find(e => e.id===id)); break;
+    case "del-event": if(await store.del("events", id)){ closeSheet(); toast("Deleted"); } break;
+    case "edit-meal": mealSheet(d.k); break;
+    case "add-prep": prepSheet(); break;
+    case "prep-toggle": { const p = S.prep.find(x => x.id===id); if(p) store.update("prep", id, {done: !p.done}); break; }
+    case "prep-del": store.del("prep", id); break;
+    case "prep-clear": for(const p of S.prep.filter(p => p.done)) await store.del("prep", p.id); break;
+    case "add-job": jobSheet(); break;
+    case "job-done": { const j = S.jobs.find(x => x.id===id); if(!j) break; if(isParent()) await approveJob(j, st.me); else if(await store.update("jobs", id, {status:"pending", doneBy: st.me, doneAt: Date.now()})) toast("Nice! Mum or Dad will check it"); break; }
+    case "job-approve": { const j = S.jobs.find(x => x.id===id); if(j) await approveJob(j, j.doneBy); break; }
+    case "job-reject": store.update("jobs", id, {status:"open", doneBy:"", doneAt:0}); toast("Sent back to do"); break;
+    case "job-del": store.del("jobs", id); break;
+    case "bonus": bonusSheet(); break;
+    case "redeem": { const r = rewardList().find(x => x.id===id); if(!r || balance(st.me) < r.cost) break;
+      if(await store.add("ledger", {who: st.me, pts: -r.cost, kind:"reward", reason: r.title, status:"pending"})) toast(`${r.title} is on the way`); break; }
+    case "reward-given": store.update("ledger", id, {status:"given", givenBy: st.me}); break;
+    case "add-reward": rewardSheet(); break;
+    case "reward-del": if(d.custom==="1") store.del("rewards", id); else saveSettings({["hide_"+id]: true}); break;
+    case "back-chat": st.thread = null; render(); break;
+    case "back-play": st.play = null; render(); break;
+    case "add-movie": movieSheet(); break;
+    case "vote": { const x = S.movies.find(m => m.id===id); if(x) store.update("movies", id, {votes: {[st.me]: !(x.votes && x.votes[st.me])}}); break; }
+    case "movie-del": store.del("movies", id); break;
+    case "spin": t.disabled = true; await spinMovie(); break;
+    case "ttt-new": { const opp = chipVals("ttt-opp")[0]; if(!opp){ toast("Pick who to play"); break; }
+      const g = tttGame() || {}; const xFirst = Math.random()<.5;
+      await store.set("games","ttt", {x: xFirst?st.me:opp, o: xFirst?opp:st.me, board:".........", turn:"x", same: $("#ttt-same").checked, scores: g.scores||{}, ts: Date.now()}); break; }
+    case "ttt-again": { const g = tttGame(); await store.set("games","ttt", {...stripId(g), x: g.o, o: g.x, board:".........", turn:"x", ts: Date.now()}); break; }
+    case "ttt-quit": { const g = tttGame() || {}; await store.set("games","ttt", {scores: g.scores||{}, ts: Date.now()}); break; }
+    case "start-spell": clearGame(); startSpelling(); break;
+    case "start-maths": clearGame(); startMaths(); break;
+    case "say": say(st.game.words[st.game.i]); break;
+    case "quit-game": clearGame(); go("play"); break;
+  }
+});
+const stripId = o => { const {id, ...r} = o || {}; return r; };
+function clearGame(){ if(st.game && st.game.timer) clearInterval(st.game.timer); try{ speechSynthesis.cancel(); }catch{} st.game = null; }
+
+document.addEventListener("keydown", e => {
+  if((e.key==="Enter"||e.key===" ") && e.target.matches(".nav a")){ e.preventDefault(); e.target.click(); }
+  if(st.game && st.game.kind==="maths"){ if(/^[0-9]$/.test(e.key)) mathsKey(e.key); else if(e.key==="Backspace") mathsKey("⌫"); else if(e.key==="-") mathsKey("−"); else if(e.key==="Enter") mathsKey("ok"); }
+  if(e.key==="Enter" && e.target.id==="pin"){ e.preventDefault(); $('[data-act="unlock"]').click(); }
+});
+
+document.addEventListener("submit", async e => {
+  e.preventDefault();
+  if(e.target.id==="composer"){
+    const inp = $("#msg-text"); const text = inp.value.trim(); if(!text) return;
+    const to = st.thread==="family" ? "family" : st.thread.split("-").find(x => x!==st.me) || st.me;
+    inp.value = "";
+    if(!(await store.add("messages", {from: st.me, to, text}))) inp.value = text;
+    window.scrollTo(0, document.body.scrollHeight); inp.focus(); return;
+  }
+  if(e.target.id==="spell-form"){
+    const g = st.game;
+    if(g.next){ g.next = false; g.locked = false; g.i++;
+      if(g.i >= g.words.length){ const wrong = g.wrong; finishGame("spelling", g.score, 2, wrong.length?`<div class="card list"><h3>Words to practise</h3>${wrong.map(w=>`<b>${esc(w)}</b>`).join("")}</div>`:""); }
+      else spellRound();
+      return; }
+    spellCheck(); return;
+  }
+  if(sheetSubmit) await sheetSubmit();
+});
+
+if(canSpeak()){ loadVoices(); try{ speechSynthesis.onvoiceschanged = loadVoices; }catch{} }
+render();
+initStore();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: evans-family-app
+    runtime: node
+    plan: free
+    region: singapore
+    buildCommand: npm ci
+    startCommand: npm start
+    healthCheckPath: /healthz
+    envVars:
+      - key: DATABASE_URL
+        sync: false # paste the impact-clock-db Internal Database URL in the Render dashboard

@@ -1,0 +1,10 @@
+{
+  "name": "evans-family-app",
+  "version": "1.0.0",
+  "private": true,
+  "description": "The Evans family's shared calendar, jobs and rewards, meals, messages and games.",
+  "main": "server.js",
+  "scripts": { "start": "node server.js" },
+  "engines": { "node": ">=20" },
+  "dependencies": { "pg": "8.13.1" }
+}
