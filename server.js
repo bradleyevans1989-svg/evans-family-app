@@ -98,6 +98,11 @@ function fileStore(file) {
   };
 }
 
+// On Render the disk is wiped on every deploy, so refuse to run without a real database.
+if (process.env.RENDER && !process.env.DATABASE_URL) {
+  console.error("DATABASE_URL is not set. Add the database's Internal Database URL in the Render dashboard (Environment tab).");
+  process.exit(1);
+}
 const store = process.env.DATABASE_URL ? pgStore(process.env.DATABASE_URL) : fileStore(path.join(__dirname, "local-data.json"));
 
 // ---------- PIN attempts: 5 wrong tries locks that person for 10 minutes ----------
