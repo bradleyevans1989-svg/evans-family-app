@@ -56,6 +56,7 @@ body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;
 *{box-sizing:border-box}
 button,input,select,textarea{font:inherit;color:inherit}
 button{cursor:pointer;border:0;background:none;padding:0}
+[hidden]{display:none!important}
 :focus-visible{outline:3px solid var(--accent);outline-offset:2px;border-radius:8px}
 h1,h2,h3{font-family:var(--f-display);margin:0;line-height:1.1;text-wrap:balance;letter-spacing:-.01em}
 h1{font-size:28px;font-weight:800}
@@ -275,6 +276,7 @@ const pick = a => a[Math.floor(Math.random()*a.length)];
 const ls = { get(k,d){ try{ const v = localStorage.getItem(k); return v==null?d:JSON.parse(v);}catch{return d;} }, set(k,v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch{} } };
 
 const ICON = {
+  repeat:'<path d="M17 2l4 4-4 4"/><path d="M3 11V9a3 3 0 0 1 3-3h15"/><path d="M7 22l-4-4 4-4"/><path d="M21 13v2a3 3 0 0 1-3 3H3"/>',
   home:'<path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/>',
   cal:'<rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/>',
   jobs:'<path d="M9 11l3 3 8-8"/><path d="M20 12v6a3 3 0 0 1-3 3H6a3 3 0 0 1-3-3V7a3 3 0 0 1 3-3h9"/>',
@@ -459,7 +461,7 @@ function viewHome(){
     <div class="banner"><div class="grow"><h3>${esc(banner.h)}</h3><p class="small">${esc(banner.p)}</p></div><button class="btn small" data-go="${banner.go}">${esc(banner.b)}</button></div>
 
     <div class="section-head"><h2>Today</h2><button class="link" data-go="cal">Calendar</button></div>
-    ${evs.length ? `<div class="list">${evs.map(eventItem).join("")}</div>` : `<div class="empty">Nothing on today. Tap + to add something to the calendar.</div>`}
+    ${evs.length ? `<div class="list">${evs.map(e => eventItem(e, tk)).join("")}</div>` : `<div class="empty">Nothing on today. Tap + to add something to the calendar.</div>`}
 
     <div class="game-grid">
       <button class="game g3" data-go="cal" data-seg="meals"><span class="ico">${ic("food")}</span><span><span class="small" style="font-weight:700">Dinner tonight</span><h3>${meal && meal.dinner ? esc(meal.dinner) : "Not planned yet"}</h3>${meal && meal.cook ? `<span class="small">${esc(who(meal.cook))} is cooking</span>` : ""}</span></button>
@@ -475,14 +477,31 @@ function viewHome(){
 }
 
 // ---------- calendar ----------
-const eventsOn = k => S.events.filter(e => e.date===k).sort((a,b) => (a.time||"").localeCompare(b.time||""));
-function eventItem(e){
+const REPEATS = [["", "Never"], ["daily", "Every day"], ["weekdays", "Weekdays"], ["weekly", "Every week"], ["fortnightly", "Every 2 weeks"], ["monthly", "Every month"], ["yearly", "Every year"]];
+const repeatLabel = r => (REPEATS.find(x => x[0]===r) || ["",""])[1];
+function occursOn(e, k){
+  if(!e.repeat) return e.date===k;
+  if(!e.date || k < e.date || (e.until && k > e.until) || (e.skip||[]).includes(k)) return false;
+  const a = parseYmd(e.date), b = parseYmd(k);
+  const diff = Math.round((Date.UTC(b.getFullYear(),b.getMonth(),b.getDate()) - Date.UTC(a.getFullYear(),a.getMonth(),a.getDate())) / 864e5);
+  switch(e.repeat){
+    case "daily": return true;
+    case "weekdays": return b.getDay()>0 && b.getDay()<6;
+    case "weekly": return diff % 7 === 0;
+    case "fortnightly": return diff % 14 === 0;
+    case "monthly": return b.getDate()===a.getDate();
+    case "yearly": return b.getDate()===a.getDate() && b.getMonth()===a.getMonth();
+  }
+  return false;
+}
+const eventsOn = k => S.events.filter(e => occursOn(e, k)).sort((a,b) => (a.time||"").localeCompare(b.time||""));
+function eventItem(e, k){
   const ppl = (e.who && e.who.length) ? e.who : FAM.map(f=>f.id);
   const color = ppl.length===1 ? ppl[0] : null;
-  return `<button class="item" style="text-align:left;${color?pc(color):""}" data-act="edit-event" data-id="${e.id}">
+  return `<button class="item" style="text-align:left;${color?pc(color):""}" data-act="edit-event" data-id="${e.id}" data-k="${esc(k||e.date)}">
     <span class="stripe" style="${color?pc(color):""}"></span>
     <span class="time">${esc(niceTime(e.time))}${e.time && e.end ? `<br><span style="font-weight:600">to ${esc(niceTime(e.end))}</span>` : ""}</span>
-    <span class="grow"><b>${esc(e.title)}</b>${e.notes?`<br><span class="small muted">${esc(e.notes)}</span>`:""}</span>
+    <span class="grow"><b>${esc(e.title)}</b>${e.repeat?`<br><span class="small muted">${ic("repeat",`style="width:13px;height:13px;vertical-align:-2px"`)} Repeats ${esc(repeatLabel(e.repeat).toLowerCase())}${e.until?` until ${esc(niceDate(e.until))}`:""}</span>`:""}${e.notes?`<br><span class="small muted">${esc(e.notes)}</span>`:""}</span>
     <span class="faces">${ppl.length===FAM.length ? `<span class="tag" style="--pc:var(--accent)">Everyone</span>` : ppl.map(p=>av(p,"sm")).join("")}</span>
   </button>`;
 }
@@ -507,23 +526,29 @@ function viewCal(){
       <div class="cal">${["Mon","Tue","Wed","Thu","Fri","Sat","Sun"].map(d=>`<span class="dow">${d}</span>`).join("")}${cells}</div>
     </div>
     <div class="section-head"><h2>${esc(niceDate(st.calDay))}</h2><button class="btn small accent" data-act="add-event">${ic("plus")} Add</button></div>
-    ${evs.length ? `<div class="list">${evs.map(eventItem).join("")}</div>` : `<div class="empty">Nothing planned. Tap Add to put something on.</div>`}
+    ${evs.length ? `<div class="list">${evs.map(e => eventItem(e, st.calDay)).join("")}</div>` : `<div class="empty">Nothing planned. Tap Add to put something on.</div>`}
   </div>`;
 }
-function eventSheet(e){
+function eventSheet(e, occ){
   const isNew = !e; e = e || {date: st.calDay, time:"", who:[], title:"", notes:""};
+  const rep = e.repeat || "";
   openSheet(`<h2>${isNew?"Add to the calendar":"Edit event"}</h2>
     <form id="f" class="stack" style="margin-top:12px">
       <label class="f">What's on?<input class="input" id="ev-title" required maxlength="80" value="${esc(e.title)}" placeholder="Ari's footy game"></label>
-      <label class="f">Day<input class="input" id="ev-date" type="date" required value="${esc(e.date)}"></label>
+      <label class="f"><span>Day <span class="small">(the first day, if it repeats)</span></span><input class="input" id="ev-date" type="date" required value="${esc(e.date)}"></label>
       <div class="row"><label class="f grow">Starts<input class="input" id="ev-time" type="time" value="${esc(e.time)}"></label><label class="f grow">Finishes<input class="input" id="ev-end" type="time" value="${esc(e.end||"")}"></label></div>
+      <div class="f"><span>Repeats</span><div class="chips" data-chips="ev-rep" data-single="1">${REPEATS.map(([v,l]) => `<button type="button" class="chip noimg" data-v="${v}" aria-pressed="${v===rep}">${l}</button>`).join("")}</div></div>
+      <label class="f" id="ev-until-wrap" ${rep?"":"hidden"}><span>Until <span class="small">(leave blank to keep going)</span></span><input class="input" id="ev-until" type="date" value="${esc(e.until||"")}"></label>
       <div class="f"><span>Who's going? <span class="small">(none picked means everyone)</span></span>${peopleChips("ev-who", e.who||[], true)}</div>
       <label class="f">Notes<textarea class="input" id="ev-notes" maxlength="300" placeholder="Bring snacks">${esc(e.notes||"")}</textarea></label>
       <button class="btn accent block" type="submit">${isNew?"Add to calendar":"Save"}</button>
-      ${isNew?"":`<button class="btn ghost block" type="button" data-act="del-event" data-id="${e.id}">${ic("trash")} Delete</button>`}
+      ${!isNew && e.repeat && occ ? `<button class="btn ghost block" type="button" data-act="skip-event" data-id="${e.id}" data-k="${esc(occ)}">Skip just ${esc(niceDate(occ))}</button>` : ""}
+      ${isNew?"":`<button class="btn ghost block" type="button" data-act="del-event" data-id="${e.id}">${ic("trash")} ${e.repeat?"Delete every repeat":"Delete"}</button>`}
     </form>`, async () => {
       const data = {title: $("#ev-title").value.trim(), date: $("#ev-date").value, time: $("#ev-time").value, end: $("#ev-end").value, who: chipVals("ev-who"), notes: $("#ev-notes").value.trim(), by: st.me};
+      data.repeat = chipVals("ev-rep")[0] || ""; data.until = data.repeat ? $("#ev-until").value : ""; data.skip = data.repeat ? (e.skip||[]) : [];
       if(!data.title || !data.date) return;
+      if(data.until && data.until < data.date){ toast("The repeat needs to end after the first day"); return; }
       if(data.end && !data.time){ toast("Add a start time as well as a finish time"); return; }
       if(data.end && data.end <= data.time){ toast("The finish time needs to be after the start time"); return; }
       const ok = isNew ? await store.add("events", data) : await store.set("events", e.id, {...data, ts: e.ts||Date.now()});
@@ -958,7 +983,7 @@ document.addEventListener("click", async ev => {
   // chip toggles inside sheets
   const chipWrap = t.closest("[data-chips]");
   if(chipWrap && t.classList.contains("chip")){
-    if(chipWrap.dataset.single){ chipWrap.querySelectorAll(".chip").forEach(c => c.setAttribute("aria-pressed", String(c===t))); }
+    if(chipWrap.dataset.single){ chipWrap.querySelectorAll(".chip").forEach(c => c.setAttribute("aria-pressed", String(c===t))); if(chipWrap.dataset.chips==="ev-rep"){ const w = $("#ev-until-wrap"); if(w) w.hidden = !t.dataset.v; } }
     else t.setAttribute("aria-pressed", String(t.getAttribute("aria-pressed")!=="true"));
     return;
   }
@@ -991,7 +1016,8 @@ document.addEventListener("click", async ev => {
     case "month": st.calMonth = new Date(st.calMonth.getFullYear(), st.calMonth.getMonth() + (+d.d), 1); render(); break;
     case "week": st.mealWeek = addDays(st.mealWeek, +d.d); render(); break;
     case "add-event": eventSheet(); break;
-    case "edit-event": eventSheet(S.events.find(e => e.id===id)); break;
+    case "edit-event": eventSheet(S.events.find(e => e.id===id), d.k); break;
+    case "skip-event": { const e = S.events.find(x => x.id===id); if(e && await store.set("events", id, {...e, skip: [...new Set([...(e.skip||[]), d.k])]})){ closeSheet(); toast("Skipped " + niceDate(d.k)); } break; }
     case "del-event": if(await store.del("events", id)){ closeSheet(); toast("Deleted"); } break;
     case "edit-meal": mealSheet(d.k); break;
     case "add-prep": prepSheet(); break;
