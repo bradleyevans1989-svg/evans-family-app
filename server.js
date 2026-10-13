@@ -42,7 +42,15 @@ function pgStore(url) {
       await q(`INSERT INTO family.meta (k, v) VALUES ('version', 1) ON CONFLICT DO NOTHING`);
       await q(`CREATE TABLE IF NOT EXISTS family.pins (member text PRIMARY KEY, hash text NOT NULL)`);
       await q(`CREATE TABLE IF NOT EXISTS family.sessions (token text PRIMARY KEY, member text NOT NULL, expires bigint NOT NULL)`);
+      await q(`CREATE TABLE IF NOT EXISTS family.config (k text PRIMARY KEY, v text NOT NULL)`);
+      await q(`CREATE TABLE IF NOT EXISTS family.push (endpoint text PRIMARY KEY, member text NOT NULL, sub jsonb NOT NULL, prefs jsonb NOT NULL, tz text NOT NULL)`);
     },
+    async get(coll, id) { const r = await q(`SELECT data FROM family.docs WHERE coll=$1 AND id=$2`, [coll, id]); return r.rows[0] ? r.rows[0].data : null; },
+    async getConfig(k) { const r = await q(`SELECT v FROM family.config WHERE k=$1`, [k]); return r.rows[0] ? r.rows[0].v : null; },
+    async setConfig(k, v) { await q(`INSERT INTO family.config (k, v) VALUES ($1,$2) ON CONFLICT (k) DO NOTHING`, [k, v]); },
+    async pushSubs() { return (await q(`SELECT endpoint, member, sub, prefs, tz FROM family.push`)).rows; },
+    async savePush(p) { await q(`INSERT INTO family.push (endpoint, member, sub, prefs, tz) VALUES ($1,$2,$3,$4,$5) ON CONFLICT (endpoint) DO UPDATE SET member=EXCLUDED.member, sub=EXCLUDED.sub, prefs=EXCLUDED.prefs, tz=EXCLUDED.tz`, [p.endpoint, p.member, p.sub, p.prefs, p.tz]); },
+    async dropPush(endpoint) { await q(`DELETE FROM family.push WHERE endpoint=$1`, [endpoint]); },
     async version() { return Number((await q(`SELECT v FROM family.meta WHERE k='version'`)).rows[0].v); },
     async all() { return (await q(`SELECT coll, id, data FROM family.docs`)).rows; },
     async write(op, coll, id, data) {
@@ -76,10 +84,17 @@ function pgStore(url) {
 function fileStore(file) {
   let db = { version: 1, docs: {}, pins: {}, sessions: {} };
   try { db = JSON.parse(fs.readFileSync(file, "utf8")); } catch {}
+  db.config = db.config || {}; db.push = db.push || {};
   const save = () => fs.writeFileSync(file, JSON.stringify(db));
   const key = (c, i) => `${c}/${i}`;
   return {
     async init() {},
+    async get(c, i) { return db.docs[key(c, i)] || null; },
+    async getConfig(k) { return db.config[k] || null; },
+    async setConfig(k, v) { if (!db.config[k]) { db.config[k] = v; save(); } },
+    async pushSubs() { return Object.values(db.push); },
+    async savePush(p) { db.push[p.endpoint] = p; save(); },
+    async dropPush(e) { delete db.push[e]; save(); },
     async version() { return db.version; },
     async all() { return Object.entries(db.docs).map(([k, data]) => { const i = k.indexOf("/"); return { coll: k.slice(0, i), id: k.slice(i + 1), data }; }); },
     async write(op, coll, id, data) {
@@ -170,8 +185,11 @@ async function api(req, res, url) {
     const { op, coll, id, data } = await readBody(req);
     if (!["set", "update", "delete"].includes(op) || !COLLS.has(coll) || !validSeg(id)) return send(res, 400, { error: "Bad write" });
     if (op !== "delete" && (!data || typeof data !== "object" || Array.isArray(data))) return send(res, 400, { error: "Bad data" });
+    const before = await store.get(coll, id);
     const ok = await store.write(op, coll, id, data);
     if (!ok) return send(res, 404, { error: "Not found" });
+    const after = op === "delete" ? null : await store.get(coll, id);
+    push.onWrite(me, op, coll, before && { id, ...before }, after && { id, ...after }).catch(e => console.error("push", e.message));
     return send(res, 200, { ok: true, v: await store.version() });
   }
   if (req.method === "POST" && url.pathname === "/api/pin") {
@@ -182,6 +200,7 @@ async function api(req, res, url) {
     if (member !== me) await store.dropSessions(member); // log them out everywhere after a reset
     return send(res, 200, { ok: true });
   }
+  if (url.pathname.startsWith("/api/push/")) return push.route(req, res, url, me, readBody, send);
   return send(res, 404, { error: "Not found" });
 }
 
@@ -211,5 +230,6 @@ const server = http.createServer(async (req, res) => {
   }
 });
 
-store.init().then(() => server.listen(PORT, () => console.log(`Evans Family app on :${PORT} (${process.env.DATABASE_URL ? "postgres" : "local file"})`)))
+const push = require("./push")(store, MEMBERS);
+store.init().then(() => push.init()).then(() => server.listen(PORT, () => console.log(`Evans Family app on :${PORT} (${process.env.DATABASE_URL ? "postgres" : "local file"})`)))
   .catch(e => { console.error("Could not start", e); process.exit(1); });

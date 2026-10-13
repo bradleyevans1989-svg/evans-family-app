@@ -276,6 +276,7 @@ const pick = a => a[Math.floor(Math.random()*a.length)];
 const ls = { get(k,d){ try{ const v = localStorage.getItem(k); return v==null?d:JSON.parse(v);}catch{return d;} }, set(k,v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch{} } };
 
 const ICON = {
+  bell:'<path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/>',
   repeat:'<path d="M17 2l4 4-4 4"/><path d="M3 11V9a3 3 0 0 1 3-3h15"/><path d="M7 22l-4-4 4-4"/><path d="M21 13v2a3 3 0 0 1-3 3H3"/>',
   home:'<path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/>',
   cal:'<rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/>',
@@ -955,6 +956,7 @@ function profileSheet(){
     <div class="stack" style="margin-top:16px">
       <button class="btn block" data-act="switch">${ic("swap")} Switch person</button>
       <button class="btn ghost block" data-act="go-play">${ic("play")} Games and movie night</button>
+      <div class="stack card flat" id="notif-box"><h3>${ic("bell")} Notifications</h3><p class="small muted">Checking…</p></div>
       <form id="f" class="stack card flat"><h3>${m.parent ? "Change or reset a PIN" : "Change my PIN"}</h3>${m.parent ? peopleChips("pin-who", [m.id], false) : ""}<input class="input" id="new-pin" inputmode="numeric" maxlength="4" pattern="[0-9]{4}" placeholder="New 4-digit PIN" required aria-label="New PIN"><button class="btn small" type="submit">Save PIN</button></form>
       <p class="note">Everything here is shared with the family.</p>
     </div>`, async () => {
@@ -963,6 +965,7 @@ function profileSheet(){
       try{ await api("/api/pin", {member: whoFor, pin: p}); if(!customPins.includes(whoFor)) customPins.push(whoFor); closeSheet(); toast(whoFor===m.id ? "PIN changed" : `${who(whoFor)}'s PIN changed`); }
       catch(e){ if(!e.quiet) toast(e.msg || "Couldn't change the PIN. Try again."); }
     });
+  fillNotifBox();
 }
 function quickAddSheet(){
   openSheet(`<h2>Add something</h2><div class="game-grid" style="margin-top:14px">
@@ -976,6 +979,59 @@ function quickAddSheet(){
 let toastT;
 function toast(t){ let el = $("#toast"); if(!el){ el = document.createElement("div"); el.id = "toast"; el.className = "toast"; el.setAttribute("role","status"); document.body.appendChild(el); } el.textContent = t; el.hidden = false; clearTimeout(toastT); toastT = setTimeout(() => el.hidden = true, 2600); }
 
+// ---------- notifications ----------
+const NOTIF_KINDS = [["msgs","Messages"],["cal","Calendar"],["jobs","Jobs and points"]];
+const pushOK = () => "serviceWorker" in navigator && "PushManager" in window && "Notification" in window;
+const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform==="MacIntel" && navigator.maxTouchPoints>1);
+const standalone = () => matchMedia("(display-mode: standalone)").matches || navigator.standalone===true;
+if("serviceWorker" in navigator){
+  navigator.serviceWorker.register("/sw.js").catch(() => {});
+  navigator.serviceWorker.addEventListener("message", e => { if(e.data && e.data.url) openFromUrl(e.data.url); });
+}
+function b64ToU8(b){ const s = atob((b + "=".repeat((4 - b.length % 4) % 4)).replace(/-/g,"+").replace(/_/g,"/")); return Uint8Array.from(s, c => c.charCodeAt(0)); }
+async function currentSub(){ if(!pushOK()) return null; const r = await navigator.serviceWorker.ready; return r.pushManager.getSubscription(); }
+async function pushOn(prefs){
+  if(await Notification.requestPermission() !== "granted"){ toast("Notifications weren't allowed on this phone"); return false; }
+  const r = await navigator.serviceWorker.ready;
+  let sub = await r.pushManager.getSubscription();
+  if(!sub){ const {key} = await api("/api/push/key"); sub = await r.pushManager.subscribe({userVisibleOnly: true, applicationServerKey: b64ToU8(key)}); }
+  await api("/api/push/subscribe", {sub: sub.toJSON(), prefs, tz: Intl.DateTimeFormat().resolvedOptions().timeZone});
+  return sub;
+}
+async function pushOff(){ const sub = await currentSub().catch(() => null); if(!sub) return; try{ await api("/api/push/unsubscribe", {endpoint: sub.endpoint}); }catch{} await sub.unsubscribe().catch(() => {}); }
+async function fillNotifBox(){
+  const box = $("#notif-box"); if(!box) return;
+  const head = `<h3>${ic("bell")} Notifications</h3>`;
+  if(!pushOK()){
+    box.innerHTML = head + (isIOS && !standalone()
+      ? `<p class="small">To get notifications on an iPhone or iPad, add the app to your Home Screen first. In Safari tap the Share button, then <b>Add to Home Screen</b>. Open the app from the new icon and come back here.</p>`
+      : `<p class="small muted">This browser can't show notifications. Try Chrome or Safari, or add the app to your Home Screen.</p>`);
+    return;
+  }
+  if(Notification.permission==="denied"){ box.innerHTML = head + `<p class="small">Notifications are blocked for this app. Allow them in your phone's settings for this app, then come back here.</p>`; return; }
+  let status = {on: false};
+  const sub = await currentSub().catch(() => null);
+  if(sub){ try{ status = await api("/api/push/status", {endpoint: sub.endpoint}); }catch{} }
+  if(!$("#notif-box")) return;
+  if(!status.on){
+    box.innerHTML = head + `<p class="small muted">Get a buzz for new messages, reminders 30 minutes before events, and jobs and points.</p><button class="btn accent block" type="button" data-act="notif-on">${ic("bell")} Turn on notifications</button>`;
+    return;
+  }
+  box.innerHTML = head + `<p class="small muted">Tap to choose what this phone tells you about.</p>
+    <div class="chips" data-chips="nt-kinds">${NOTIF_KINDS.map(([k,l]) => `<button type="button" class="chip noimg" data-v="${k}" aria-pressed="${!!status.prefs[k]}">${l}</button>`).join("")}</div>
+    <div class="row"><button class="btn small grow" type="button" data-act="notif-test">Send a test</button><button class="btn small ghost grow" type="button" data-act="notif-off">Turn off</button></div>`;
+}
+const notifPrefs = () => Object.fromEntries(NOTIF_KINDS.map(([k]) => [k, chipVals("nt-kinds").includes(k)]));
+function openFromUrl(u){
+  let q; try{ q = new URL(u, location.href).searchParams; }catch{ return; }
+  const tab = q.get("tab"); if(!st.me || !["home","cal","jobs","chat","play"].includes(tab)) return;
+  st.tab = tab; st.thread = null; st.play = null;
+  const th = q.get("thread"); if(tab==="chat" && th && (th==="family" || th.split("-").includes(st.me))) st.thread = th;
+  const day = q.get("day"); if(tab==="cal" && /^\d{4}-\d{2}-\d{2}$/.test(day||"")){ st.calSeg = "cal"; st.calDay = day; const d = parseYmd(day); st.calMonth = new Date(d.getFullYear(), d.getMonth(), 1); }
+  if(tab==="jobs") st.jobSeg = q.get("seg")==="rewards" ? "rewards" : "jobs";
+  closeSheet(); render(); window.scrollTo(0, st.thread ? document.body.scrollHeight : 0);
+}
+
 // ---------- events ----------
 document.addEventListener("click", async ev => {
   const t = ev.target.closest("[data-act],[data-go],[data-pick],[data-day],[data-calseg],[data-jobseg],[data-thread],[data-play],[data-level],[data-cell],[data-key],[data-chips] .chip");
@@ -983,8 +1039,9 @@ document.addEventListener("click", async ev => {
   // chip toggles inside sheets
   const chipWrap = t.closest("[data-chips]");
   if(chipWrap && t.classList.contains("chip")){
-    if(chipWrap.dataset.single){ chipWrap.querySelectorAll(".chip").forEach(c => c.setAttribute("aria-pressed", String(c===t))); if(chipWrap.dataset.chips==="ev-rep"){ const w = $("#ev-until-wrap"); if(w) w.hidden = !t.dataset.v; } }
+    if(chipWrap.dataset.single){ chipWrap.querySelectorAll(".chip").forEach(c => c.setAttribute("aria-pressed", String(c===t))); if(chipWrap.dataset.chips==="nt-kinds"){} else if(chipWrap.dataset.chips==="ev-rep"){ const w = $("#ev-until-wrap"); if(w) w.hidden = !t.dataset.v; } }
     else t.setAttribute("aria-pressed", String(t.getAttribute("aria-pressed")!=="true"));
+    if(chipWrap.dataset.chips==="nt-kinds") pushOn(notifPrefs()).catch(() => toast("Couldn't save that. Try again."));
     return;
   }
   const d = t.dataset;
@@ -1007,7 +1064,10 @@ document.addEventListener("click", async ev => {
       catch(e){ t.disabled = false; toast(e.msg || "Couldn't reach the family app. Check your connection."); $("#pin").value = ""; $("#pin").focus(); }
       break; }
     case "profile": profileSheet(); break;
-    case "switch": logout(); loadPins(); break;
+    case "switch": await pushOff(); logout(); loadPins(); break;
+    case "notif-on": t.disabled = true; try{ if(await pushOn(Object.fromEntries(NOTIF_KINDS.map(([k]) => [k, true])))){ toast("Notifications on"); api("/api/push/test", {}).catch(() => {}); } }catch(e){ if(!e.quiet) toast("Couldn't turn on notifications. Try again."); } fillNotifBox(); break;
+    case "notif-off": await pushOff(); toast("Notifications off on this phone"); fillNotifBox(); break;
+    case "notif-test": { const sub = await currentSub().catch(() => null); api("/api/push/test", {endpoint: sub && sub.endpoint}).then(() => toast("Sent. It should pop up in a moment.")).catch(() => toast("Couldn't send a test")); break; }
     case "go-play": closeSheet(); go("play"); break;
     case "quickadd": quickAddSheet(); break;
     case "qa": closeSheet();
@@ -1084,6 +1144,7 @@ document.addEventListener("submit", async e => {
 if(canSpeak()){ loadVoices(); try{ speechSynthesis.onvoiceschanged = loadVoices; }catch{} }
 render();
 initStore();
+if(location.search){ openFromUrl(location.href); history.replaceState(null, "", "/"); }
 })();
 </script>
 </body>

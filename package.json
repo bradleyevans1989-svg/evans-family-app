@@ -4,7 +4,14 @@
   "private": true,
   "description": "The Evans family's shared calendar, jobs and rewards, meals, messages and games.",
   "main": "server.js",
-  "scripts": { "start": "node server.js" },
-  "engines": { "node": ">=20" },
-  "dependencies": { "pg": "8.13.1" }
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "pg": "8.13.1",
+    "web-push": "3.6.7"
+  }
 }
