@@ -601,7 +601,7 @@ function jobCard(j){
   const a = j.assignee==="anyone" ? `<span class="tag" style="--pc:var(--accent)">Anyone</span>` : av(j.assignee,"sm");
   let actions = "";
   const mine = j.assignee==="anyone" || j.assignee===st.me;
-  if(j.status==="open" && mine) actions = `<button class="btn small" data-act="job-done" data-id="${j.id}">${ic("check")} Done it</button>`;
+  if(j.status==="open" && (mine || isParent())) actions = `<button class="btn small" data-act="job-done" data-id="${j.id}">${ic("check")} Done it</button>`;
   if(j.status==="pending"){
     actions = isParent()
       ? `<button class="btn small accent" data-act="job-approve" data-id="${j.id}">Approve</button><button class="btn small ghost" data-act="job-reject" data-id="${j.id}">Not yet</button>`
@@ -648,6 +648,16 @@ function jobSheet(){
 async function approveJob(j, doneBy){
   const ok = await store.update("jobs", j.id, {status:"done", doneBy, doneAt: Date.now(), approvedBy: st.me});
   if(ok){ await store.set("ledger", "job_"+j.id, {who: doneBy, pts: +j.pts, kind:"job", reason: j.title, ts: Date.now()}); toast(`${who(doneBy)} earned ${j.pts} points`); }
+}
+function whoDidSheet(j){
+  const pre = j.assignee && j.assignee!=="anyone" ? [j.assignee] : [];
+  openSheet(`<h2>Who did it?</h2><p class="muted small" style="margin-top:4px">${esc(j.title)} · ${j.pts} points</p><form id="f" class="stack" style="margin-top:12px">
+    ${peopleChips("wd-who", pre, false)}
+    <button class="btn accent block" type="submit">${ic("check")} Give the points</button></form>`, async () => {
+      const w = chipVals("wd-who")[0]; if(!w){ toast("Tap who did it"); return; }
+      const cur = S.jobs.find(x => x.id===j.id); if(!cur || cur.status==="done"){ closeSheet(); return; }
+      closeSheet(); await approveJob(cur, w);
+    });
 }
 function bonusSheet(){
   openSheet(`<h2>Give points</h2><form id="f" class="stack" style="margin-top:12px">
@@ -1085,7 +1095,7 @@ document.addEventListener("click", async ev => {
     case "prep-del": store.del("prep", id); break;
     case "prep-clear": for(const p of S.prep.filter(p => p.done)) await store.del("prep", p.id); break;
     case "add-job": jobSheet(); break;
-    case "job-done": { const j = S.jobs.find(x => x.id===id); if(!j) break; if(isParent()) await approveJob(j, st.me); else if(await store.update("jobs", id, {status:"pending", doneBy: st.me, doneAt: Date.now()})) toast("Nice! Mum or Dad will check it"); break; }
+    case "job-done": { const j = S.jobs.find(x => x.id===id); if(!j) break; if(isParent()) whoDidSheet(j); else if(await store.update("jobs", id, {status:"pending", doneBy: st.me, doneAt: Date.now()})) toast("Nice! Mum or Dad will check it"); break; }
     case "job-approve": { const j = S.jobs.find(x => x.id===id); if(j) await approveJob(j, j.doneBy); break; }
     case "job-reject": store.update("jobs", id, {status:"open", doneBy:"", doneAt:0}); toast("Sent back to do"); break;
     case "job-del": store.del("jobs", id); break;
