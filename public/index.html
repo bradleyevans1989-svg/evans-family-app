@@ -835,15 +835,30 @@ const WORDS = {
   2: ["achieve","ancient","apparent","bargain","bruise","category","committee","conscience","curiosity","definite","desperate","embarrass","existence","foreign","guarantee","harass","immediately","independent","leisure","marvellous","mischievous","occasion","parliament","persuade","privilege","recommend","restaurant","rhythm","signature","sincerely","temperature","vegetable","yacht","awkward","necessary","sufficient","controversy","programme","develop","excellent"],
   3: ["accommodate","acquaintance","bureaucracy","conscientious","connoisseur","entrepreneur","exaggerate","fluorescent","handkerchief","hierarchy","idiosyncrasy","liaison","millennium","miniature","occurrence","onomatopoeia","perseverance","questionnaire","reminiscence","surveillance","threshold","unnecessary","vacuum","silhouette","pharaoh","playwright","manoeuvre","pronunciation","definitely","gauge","rhythmical","catastrophe","convalescence","disappoint","inoculate","supersede","colleague","bourgeois","camouflage","mediocre"],
 };
+const SENTENCES = {"because": "We stayed inside because it was raining.", "friend": "My best friend is coming over after school.", "beautiful": "The sunset over the beach was beautiful.", "different": "Every snowflake is different.", "believe": "I can't believe it's already Friday.", "February": "My birthday is in February.", "library": "I borrowed three books from the library.", "address": "Write your address on the envelope.", "answer": "Put your hand up if you know the answer.", "calendar": "Mum wrote the party on the calendar.", "island": "We caught a ferry to the island.", "knowledge": "She has a lot of knowledge about sharks.", "minute": "Dinner will be ready in a minute.", "neighbour": "Our neighbour has a big fluffy dog.", "often": "We often go to the park on Sundays.", "people": "There were lots of people at the footy.", "question": "Can I ask you a question?", "remember": "Remember to bring your hat.", "separate": "Keep the eggs separate from the flour.", "surprise": "We threw Dad a surprise party.", "through": "The cat ran through the open door.", "thought": "I thought the movie was funny.", "weird": "That noise was really weird.", "favourite": "Pizza is my favourite dinner.", "Wednesday": "We have sport on Wednesday.", "environment": "Recycling helps the environment.", "height": "Measure your height against the wall.", "interrupt": "Please don't interrupt when someone is talking.", "length": "Measure the length of the table.", "opposite": "Hot is the opposite of cold.", "special": "Today is a special day.", "straight": "Draw a straight line with a ruler.", "caught": "Ari caught the ball with one hand.", "guard": "The guard stood at the gate.", "heard": "I heard a bird singing outside.", "business": "Her mum runs her own business.", "century": "A century is one hundred years.", "certain": "Are you certain you locked the door?", "disappear": "The magician made the coin disappear.", "exercise": "Walking the dog is good exercise.", "achieve": "If you practise, you can achieve your goals.", "ancient": "The pyramids are ancient buildings.", "apparent": "It was apparent that the dog had eaten the cake.", "bargain": "These shoes were a bargain at half price.", "bruise": "I got a bruise on my knee when I fell.", "category": "Sort the animals into each category.", "committee": "The school committee planned the fete.", "conscience": "My conscience told me to tell the truth.", "curiosity": "Curiosity made the kitten look in the box.", "definite": "We need a definite answer by Friday.", "desperate": "After the hike we were desperate for a drink.", "embarrass": "Please don't embarrass me in front of my friends.", "existence": "Do you believe in the existence of aliens?", "foreign": "She can speak a foreign language.", "guarantee": "I guarantee you will love this book.", "harass": "It's not okay to harass anyone online.", "immediately": "Come inside immediately, it's storming.", "independent": "Ruby is becoming very independent.", "leisure": "Swimming is my favourite leisure activity.", "marvellous": "We had a marvellous time at the beach.", "mischievous": "The mischievous puppy chewed my shoe.", "occasion": "A wedding is a special occasion.", "parliament": "Laws are made in parliament.", "persuade": "Can I persuade you to have dessert?", "privilege": "Staying up late is a privilege.", "recommend": "I recommend the chocolate cake.", "restaurant": "We went to a restaurant for Mum's birthday.", "rhythm": "Clap your hands to the rhythm.", "signature": "Put your signature at the bottom of the form.", "sincerely": "I sincerely hope you feel better soon.", "temperature": "The temperature will reach thirty degrees today.", "vegetable": "Carrot is my favourite vegetable.", "yacht": "A white yacht sailed across the bay.", "awkward": "There was an awkward silence after the joke.", "necessary": "Is it necessary to wear a uniform?", "sufficient": "Two pizzas should be sufficient for everyone.", "controversy": "The new rule caused a lot of controversy.", "programme": "We watched a programme about whales.", "develop": "Practice helps you develop new skills.", "excellent": "You did an excellent job on your project.", "accommodate": "The hotel can accommodate fifty guests.", "acquaintance": "He is an acquaintance from my old school.", "bureaucracy": "Too much bureaucracy slows everything down.", "conscientious": "A conscientious student always finishes their homework.", "connoisseur": "Dad thinks he is a connoisseur of barbecue.", "entrepreneur": "The young entrepreneur started her own company.", "exaggerate": "Don't exaggerate, it wasn't that big.", "fluorescent": "The fluorescent light flickered in the classroom.", "handkerchief": "He pulled a handkerchief out of his pocket.", "hierarchy": "There is a hierarchy in a wolf pack.", "idiosyncrasy": "Wearing odd socks is his little idiosyncrasy.", "liaison": "The teacher acted as a liaison between the two schools.", "millennium": "A millennium is one thousand years.", "miniature": "She collects miniature horses made of glass.", "occurrence": "Snow is a rare occurrence in our town.", "onomatopoeia": "Buzz and sizzle are examples of onomatopoeia.", "perseverance": "With perseverance you can learn anything.", "questionnaire": "Please fill in the questionnaire about the camp.", "reminiscence": "The old photos sparked a happy reminiscence of our holiday.", "surveillance": "The shop has surveillance cameras.", "threshold": "He carried the box over the threshold.", "unnecessary": "It is unnecessary to shout.", "vacuum": "Please vacuum the lounge room.", "silhouette": "We saw the silhouette of a kangaroo at sunset.", "pharaoh": "The pharaoh was buried in a pyramid.", "playwright": "Shakespeare was a famous playwright.", "manoeuvre": "It was hard to manoeuvre the car into the tiny space.", "pronunciation": "Check the pronunciation of the new word.", "definitely": "I am definitely coming to your party.", "gauge": "The fuel gauge says the tank is nearly empty.", "rhythmical": "The rhythmical sound of the waves made me sleepy.", "catastrophe": "Forgetting the birthday cake would be a catastrophe.", "convalescence": "After surgery she needed a week of convalescence.", "disappoint": "I don't want to disappoint the team.", "inoculate": "The nurse will inoculate everyone against the flu.", "supersede": "The new phone will supersede the old model.", "colleague": "Mum had lunch with a colleague from work.", "bourgeois": "The film made fun of bourgeois life in Paris.", "camouflage": "The lizard used camouflage to hide on the rock.", "mediocre": "The food was mediocre, not great and not bad."};
 let voices = [];
-function loadVoices(){ try{ voices = speechSynthesis.getVoices(); }catch{} }
+function loadVoices(){ try{ voices = speechSynthesis.getVoices().filter(v => /^en/i.test(v.lang)); }catch{} }
 const canSpeak = () => "speechSynthesis" in window && typeof SpeechSynthesisUtterance === "function";
-function say(text){
+// Rank voices so the clearest natural-sounding English voice on the phone wins over the robotic defaults.
+function voiceScore(v){
+  let n = /en[-_]AU/i.test(v.lang) ? 3 : /en[-_]GB/i.test(v.lang) ? 2 : /en[-_](US|NZ|IE)/i.test(v.lang) ? 1 : 0;
+  if(/natural|neural|enhanced|premium|online|siri/i.test(v.name)) n += 6;
+  if(/google/i.test(v.name)) n += 4;
+  if(/^(karen|catherine|lee|daniel|serena|kate|samantha|moira|martha|arthur)\b/i.test(v.name)) n += 3;
+  if(/compact|espeak|eloquence|novelty|whisper|bad news|bells|boing|bubbles|cellos|jester|organ|superstar|trinoids|wobble|zarvox|albert|fred|junior|ralph|grandma|grandpa|rocko|shelley|flo|eddy|reed|sandy/i.test(v.name)) n -= 10;
+  return n;
+}
+function bestVoice(){
+  const saved = ls.get("evans-voice", null);
+  return voices.find(v => v.voiceURI===saved) || [...voices].sort((a,b) => voiceScore(b) - voiceScore(a))[0] || null;
+}
+function say(text, rate=.85){
   if(!canSpeak()) return;
-  try{ speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(text); u.rate = .85;
-    const v = voices.find(v => /en-AU/i.test(v.lang)) || voices.find(v => /en-GB/i.test(v.lang)) || voices.find(v => /^en/i.test(v.lang)); if(v) u.voice = v; u.lang = v ? v.lang : "en-AU";
+  try{ speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(text); u.rate = rate;
+    const v = bestVoice(); if(v) u.voice = v; u.lang = v ? v.lang : "en-AU";
     speechSynthesis.speak(u); }catch{}
 }
+const blankWord = (sentence, w) => sentence.replace(new RegExp(w, "i"), "_____");
 function makeGaps(w){ const idx = shuffle([...w].map((_,i)=>i).filter(i => i>0)).slice(0, Math.max(2, Math.round(w.length/4))); return [...w].map((c,i) => idx.includes(i) ? "_" : c); }
 function scramble(w){ let s; let n = 0; do { s = shuffle([...w.toLowerCase()]).join(""); } while(s===w.toLowerCase() && n++<10); return s; }
 
@@ -856,13 +871,17 @@ function startSpelling(){
 function spellRound(){
   const g = st.game; const w = g.words[g.i]; g.mode = g.modes[g.i % g.modes.length];
   if(g.mode==="gaps") g.shape = makeGaps(w); if(g.mode==="jumble") g.shape = [...scramble(w)];
-  const prompt = g.mode==="hear" ? `<p class="muted" style="text-align:center">Listen, then type the word</p><button class="btn accent block" data-act="say">${ic("sound")} Hear the word</button>`
+  const hint = SENTENCES[w] ? `<button class="btn ghost block" type="button" data-act="say-sentence">${ic("chat")} Use it in a sentence</button><p id="spell-sent" style="text-align:center;font-weight:600" hidden></p>` : "";
+  const vs = [...voices].sort((a,b) => voiceScore(b) - voiceScore(a)); const cur = bestVoice();
+  const voicePick = vs.length > 1 ? `<label class="f small" style="margin-top:4px"><span>Hard to understand? Try another voice</span><select class="input" id="voice-pick">${vs.map(v => `<option value="${esc(v.voiceURI)}" ${cur && v.voiceURI===cur.voiceURI?"selected":""}>${esc(v.name)} (${esc(v.lang)})</option>`).join("")}</select></label>` : "";
+  const prompt = g.mode==="hear" ? `<p class="muted" style="text-align:center">Listen, then type the word</p><div class="row"><button class="btn accent grow" data-act="say">${ic("sound")} Hear it</button><button class="btn grow" data-act="say-slow">Slower</button></div>${hint}${voicePick}`
     : g.mode==="gaps" ? `<p class="muted" style="text-align:center">Fill in the missing letters. Type the whole word.</p><div class="letters">${g.shape.map(c => `<span class="${c==="_"?"gap":""}">${c==="_"?"?":esc(c)}</span>`).join("")}</div>`
     : `<p class="muted" style="text-align:center">Unscramble the letters</p><div class="letters">${g.shape.map(c => `<span>${esc(c)}</span>`).join("")}</div>`;
+  const prompt2 = g.mode==="hear" ? prompt : prompt + hint;
   $("#root").innerHTML = `<div class="stack">
     <header class="top"><button class="iconbtn" data-act="quit-game" aria-label="Stop playing">${ic("x")}</button><div class="who grow"><b>Spelling Bee</b><span class="muted small num">Word ${g.i+1} of ${g.words.length}</span></div><span class="pill pts num">${ic("star")} ${g.score*2}</span></header>
     <div class="bar"><i style="width:${g.i/g.words.length*100}%"></i></div>
-    <div class="card stack">${prompt}
+    <div class="card stack">${prompt2}
       <form id="spell-form" class="stack"><input class="input" id="spell-in" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="Your spelling" style="font-size:22px;text-align:center"><button class="btn block" type="submit">Check</button></form>
       <div id="spell-fb" aria-live="polite"></div></div>
   </div>`;
@@ -1119,6 +1138,10 @@ document.addEventListener("click", async ev => {
     case "start-spell": clearGame(); startSpelling(); break;
     case "start-maths": clearGame(); startMaths(); break;
     case "say": say(st.game.words[st.game.i]); break;
+    case "say-slow": say(st.game.words[st.game.i], .5); break;
+    case "say-sentence": { const g = st.game, w = g.words[g.i], sn = SENTENCES[w]; if(!sn) break;
+      const el = $("#spell-sent"); if(el){ el.textContent = blankWord(sn, w); el.hidden = false; }
+      if(g.mode==="hear") say(sn, .8); break; }
     case "quit-game": clearGame(); go("play"); break;
   }
 });
@@ -1131,6 +1154,9 @@ document.addEventListener("keydown", e => {
   if(e.key==="Enter" && e.target.id==="pin"){ e.preventDefault(); $('[data-act="unlock"]').click(); }
 });
 
+document.addEventListener("change", e => {
+  if(e.target.id==="voice-pick"){ ls.set("evans-voice", e.target.value); if(st.game && st.game.kind==="spelling") say(st.game.words[st.game.i]); }
+});
 document.addEventListener("submit", async e => {
   e.preventDefault();
   if(e.target.id==="composer"){
