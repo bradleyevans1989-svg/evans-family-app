@@ -163,6 +163,11 @@ canvas#game { display: block; background: var(--lcd); border-radius: 0 0 4px 4px
 'use strict';
 const COLS = 24, ROWS = 24;
 const C = { lcd: '#b6c592', ink: '#1e2913', off: 'rgba(30,41,19,0.07)', danger: '#9b1d12', amber: '#6f4300' };
+// item colours: the board stays Nokia LCD, everything you can touch glows in its own colour
+const IC = {
+  food: '#e0156b', bomb: '#d81e1e', spark: '#ff7a00', pit: '#4b1a8c', pitWarn: '#8a3ffc', portal: '#0a6cff', portal2: '#00a9c2', bug: '#ff6a00',
+  ghost: '#008f8f', slow: '#2a3fd6', shield: '#c48a00', scissors: '#8a2be2', frenzy: '#e0156b', defuse: '#138a36',
+};
 
 // ---------- sprites (5x5) ----------
 const SP = {
@@ -438,11 +443,11 @@ function explode(b) {
 }
 
 const CHAOS = [
-  { name: 'BOMB RAIN', run() { const n = 3 + Math.min(S.level, 5); for (let i = 0; i < n; i++) { const c = freeCell(4); if (c) S.bombs.push({ ...c, born: S.t, at: S.t + 2600 + i * 350 }); } } },
-  { name: 'MIRROR', sub: 'controls flipped', run() { S.fx.mirror = 6000; } },
-  { name: 'SURGE', sub: 'speed x2', run() { S.fx.surge = 5000; } },
-  { name: 'QUAKE', sub: 'the walls moved', run() { buildLevel(false, true); } },
-  { name: 'SINKHOLES', run() { for (let i = 0; i < 3 + Math.min(S.level, 4); i++) spawnPit(4); } },
+  { name: 'BOMB RAIN', col: IC.bomb, run() { const n = 3 + Math.min(S.level, 5); for (let i = 0; i < n; i++) { const c = freeCell(4); if (c) S.bombs.push({ ...c, born: S.t, at: S.t + 2600 + i * 350 }); } } },
+  { name: 'MIRROR', col: IC.slow, sub: 'controls flipped', run() { S.fx.mirror = 6000; } },
+  { name: 'SURGE', col: '#e05500', sub: 'speed x2', run() { S.fx.surge = 5000; } },
+  { name: 'QUAKE', col: '#7a4b12', sub: 'the walls moved', run() { buildLevel(false, true); } },
+  { name: 'SINKHOLES', col: IC.pit, run() { for (let i = 0; i < 3 + Math.min(S.level, 4); i++) spawnPit(4); } },
 ];
 function spawnPit(minHead = 5) { const c = freeCell(minHead); if (c) S.pits.push({ ...c, t0: S.t, warn: 1500, open: rnd(6000, 10000), opened: false }); }
 
@@ -506,7 +511,7 @@ function step() {
 }
 
 function applyPower(type, x, y) {
-  SFX.power(); pop(x, y, POWERS[type].label);
+  SFX.power(); pop(x, y, POWERS[type].label, IC[type]);
   switch (type) {
     case 'ghost': S.fx.ghost = POWERS.ghost.ms; break;
     case 'slow': S.fx.slow = POWERS.slow.ms; break;
@@ -522,7 +527,7 @@ function applyPower(type, x, y) {
       S.bombs = []; addScore(n * 10 * S.level); break;
     }
   }
-  banner(POWERS[type].label, null, 800);
+  banner(POWERS[type].label, null, 800, IC[type]);
 }
 
 function spawnCritter() { const c = freeCell(5); if (c) { S.critter = { ...c, until: S.t + 7000, moveAt: S.t + 500 }; banner('BUG!', 'catch it', 900); } }
@@ -571,7 +576,7 @@ function update(dt) {
   }
   if (S.portal && S.t > S.portal.until && !(S.portal.used && S.t - S.portal.used < 400)) S.portal = null;
   if (S.t >= N.chaos) {
-    const c = pick(CHAOS); c.run(); banner(c.name, c.sub, 1600, true); SFX.alarm(); S.flash = 90;
+    const c = pick(CHAOS); c.run(); banner(c.name, c.sub, 1600, c.col || true); SFX.alarm(); S.flash = 90;
     N.chaos = S.t + Math.max(10000, rnd(20000, 28000) - L * 1500);
   }
 
@@ -648,11 +653,12 @@ function resize() {
   draw();
 }
 
-function sprite(ctx, bm, x, y, c, color, alpha = 1) {
+function sprite(ctx, bm, x, y, c, color, alpha = 1, glow = 0) {
   const p = c / 6, o = p / 2;
   ctx.fillStyle = color; ctx.globalAlpha = alpha;
+  if (glow) { ctx.shadowColor = color; ctx.shadowBlur = c * glow; }
   for (let r = 0; r < 5; r++) for (let q = 0; q < 5; q++) if (bm[r][q] === '#') ctx.fillRect(x + o + q * p + 0.4, y + o + r * p + 0.4, p - 0.8, p - 0.8);
-  ctx.globalAlpha = 1;
+  ctx.globalAlpha = 1; ctx.shadowBlur = 0;
 }
 function block(x, y, color, inset = 1) { g.fillStyle = color; g.fillRect(x * cell + inset, y * cell + inset, cell - inset * 2, cell - inset * 2); }
 
@@ -678,44 +684,44 @@ function draw() {
   // pits
   for (const p of S.pits) {
     const age = now - p.t0;
-    if (!p.opened) { if (Math.floor(age / 150) % 2 === 0) sprite(g, SP.pitW, p.x * cell, p.y * cell, cell, C.danger); }
+    if (!p.opened) { if (Math.floor(age / 150) % 2 === 0) sprite(g, SP.pitW, p.x * cell, p.y * cell, cell, IC.pitWarn, 1, 0.5); }
     else {
       const left = p.warn + p.open - age;
-      if (left < 1200 && Math.floor(age / 100) % 2 === 0) sprite(g, SP.pit, p.x * cell, p.y * cell, cell, C.ink, 0.5);
-      else { block(p.x, p.y, C.ink, 0); sprite(g, SP.pit, p.x * cell, p.y * cell, cell, C.lcd, 0.35); }
+      if (left < 1200 && Math.floor(age / 100) % 2 === 0) sprite(g, SP.pit, p.x * cell, p.y * cell, cell, IC.pit, 0.5);
+      else { g.shadowColor = IC.pitWarn; g.shadowBlur = cell * 0.5; block(p.x, p.y, IC.pit, 0); g.shadowBlur = 0; sprite(g, SP.pit, p.x * cell, p.y * cell, cell, IC.pitWarn, 0.9); }
     }
   }
   // portal
   if (S.portal) {
     const f = Math.floor(now / 180) % 2 ? SP.portA : SP.portB;
     const blink = S.portal.until - now < 2000 && Math.floor(now / 120) % 2;
-    if (!blink) { sprite(g, f, S.portal.a.x * cell, S.portal.a.y * cell, cell, C.amber); sprite(g, f, S.portal.b.x * cell, S.portal.b.y * cell, cell, C.amber); }
+    if (!blink) { const pc = Math.floor(now / 180) % 2 ? IC.portal : IC.portal2; sprite(g, f, S.portal.a.x * cell, S.portal.a.y * cell, cell, pc, 1, 0.6); sprite(g, f, S.portal.b.x * cell, S.portal.b.y * cell, cell, pc, 1, 0.6); }
   }
   // food
   for (const f of S.food) {
     if (f.until && f.until - now < 2000 && Math.floor(now / 110) % 2) continue;
-    sprite(g, SP.food, f.x * cell, f.y * cell, cell, C.ink);
+    sprite(g, SP.food, f.x * cell, f.y * cell, cell, IC.food, 1, 0.45);
   }
   // power-ups
   for (const p of S.powers) {
     if (p.until - now < 2000 && Math.floor(now / 110) % 2) continue;
-    g.strokeStyle = C.amber; g.lineWidth = 1; g.strokeRect(p.x * cell + 0.5, p.y * cell + 0.5, cell - 1, cell - 1);
-    sprite(g, SP[p.type], p.x * cell, p.y * cell, cell, C.amber);
+    g.strokeStyle = IC[p.type]; g.lineWidth = 1.5; g.shadowColor = IC[p.type]; g.shadowBlur = cell * 0.5; g.strokeRect(p.x * cell + 0.75, p.y * cell + 0.75, cell - 1.5, cell - 1.5); g.shadowBlur = 0;
+    sprite(g, SP[p.type], p.x * cell, p.y * cell, cell, IC[p.type], 1, 0.3);
   }
   // critter
   if (S.critter) {
     const c = S.critter;
-    if (!(c.until - now < 2000 && Math.floor(now / 100) % 2)) sprite(g, Math.floor(now / 140) % 2 ? SP.bug1 : SP.bug2, c.x * cell, c.y * cell, cell, C.ink);
+    if (!(c.until - now < 2000 && Math.floor(now / 100) % 2)) sprite(g, Math.floor(now / 140) % 2 ? SP.bug1 : SP.bug2, c.x * cell, c.y * cell, cell, IC.bug, 1, 0.5);
   }
   // bombs
   for (const b of S.bombs) {
     const left = b.at - now;
     const rate = left < 1000 ? 70 : left < 2200 ? 140 : 300;
     const hot = Math.floor(now / rate) % 2 === 0;
-    const col = left < 2200 && hot ? C.danger : C.ink;
-    sprite(g, hot ? SP.bomb : SP.bomb2, b.x * cell, b.y * cell, cell, col);
+    const col = left < 2200 && hot ? IC.spark : IC.bomb;
+    sprite(g, hot ? SP.bomb : SP.bomb2, b.x * cell, b.y * cell, cell, col, 1, left < 2200 ? 0.7 : 0.35);
     if (left < 1600) { // show blast radius
-      g.fillStyle = C.danger; g.globalAlpha = 0.12 + (hot ? 0.08 : 0);
+      g.fillStyle = IC.spark; g.globalAlpha = 0.14 + (hot ? 0.1 : 0);
       for (let dy = -2; dy <= 2; dy++) for (let dx = -2; dx <= 2; dx++) if (Math.abs(dx) + Math.abs(dy) <= 2 && (dx || dy)) g.fillRect(wrap(b.x + dx, COLS) * cell, wrap(b.y + dy, ROWS) * cell, cell, cell);
       g.globalAlpha = 1;
     }
@@ -740,16 +746,16 @@ function draw() {
       }
     }
     if (S.shield > 0 && S.snake[0]) {
-      const h = S.snake[0]; g.strokeStyle = C.amber; g.lineWidth = 2;
-      g.beginPath(); g.arc(h.x * cell + cell / 2, h.y * cell + cell / 2, cell * 0.85, 0, Math.PI * 2); g.stroke();
+      const h = S.snake[0]; g.strokeStyle = IC.shield; g.lineWidth = 2; g.shadowColor = IC.shield; g.shadowBlur = cell * 0.4;
+      g.beginPath(); g.arc(h.x * cell + cell / 2, h.y * cell + cell / 2, cell * 0.85, 0, Math.PI * 2); g.stroke(); g.shadowBlur = 0;
     }
   }
   // blasts
   for (const b of S.blasts) {
     const a = 1 - (now - b.t0) / 450;
     for (const c of b.cells) {
-      g.globalAlpha = Math.max(0, a); g.fillStyle = C.ink; g.fillRect(c.x * cell, c.y * cell, cell, cell);
-      g.globalAlpha = Math.max(0, a) * 0.9; g.fillStyle = C.danger;
+      g.globalAlpha = Math.max(0, a); g.fillStyle = IC.bomb; g.fillRect(c.x * cell, c.y * cell, cell, cell);
+      g.globalAlpha = Math.max(0, a) * 0.95; g.fillStyle = a > 0.5 ? '#ffd23f' : IC.spark;
       const q = cell * (0.5 - 0.4 * a); g.fillRect(c.x * cell + q, c.y * cell + q, cell - 2 * q, cell - 2 * q);
     }
     g.globalAlpha = 1;
@@ -762,7 +768,7 @@ function draw() {
     const x = Math.min(W - 30, Math.max(30, p.x * cell + cell / 2)), y = p.y * cell - k * cell * 1.6;
     g.globalAlpha = 1 - k * k;
     g.lineWidth = 3; g.strokeStyle = C.lcd; g.strokeText(p.text, x, y);
-    g.fillStyle = p.bad ? C.danger : C.ink; g.fillText(p.text, x, y);
+    g.fillStyle = typeof p.bad === 'string' ? p.bad : p.bad ? C.danger : C.ink; g.fillText(p.text, x, y);
   }
   g.globalAlpha = 1;
   g.restore();
@@ -773,14 +779,14 @@ function draw() {
   if (S.banner && now < S.banner.until) {
     const b = S.banner, h = cell * 3.2, y = W * 0.38;
     g.textAlign = 'center'; g.textBaseline = 'middle';
-    g.fillStyle = b.bad ? C.danger : C.ink; g.fillRect(0, y - h / 2, W, h + (b.sub ? cell * 1.2 : 0));
+    g.fillStyle = typeof b.bad === 'string' ? b.bad : b.bad ? C.danger : C.ink; g.fillRect(0, y - h / 2, W, h + (b.sub ? cell * 1.2 : 0));
     g.fillStyle = C.lcd; g.font = `700 ${cell * 1.5}px Silkscreen, monospace`; g.fillText(b.text, W / 2, y);
     if (b.sub) { g.font = `400 ${cell * 0.75}px Silkscreen, monospace`; g.fillText(b.sub.toUpperCase(), W / 2, y + cell * 1.45); }
   }
   // combo meter
   if (S.combo > 1 && now - S.lastEat < 2600) {
     const k = 1 - (now - S.lastEat) / 2600;
-    g.fillStyle = C.ink; g.fillRect(0, W - 3, W * k, 3);
+    g.fillStyle = IC.food; g.fillRect(0, W - 3, W * k, 3);
   }
 }
 
@@ -884,18 +890,18 @@ window.addEventListener('resize', resize);
 
 // field guide
 const GUIDE = [
-  ['food', C.ink, 'Snack', 'Eat within 2.6s of the last one to stack a combo up to x9.'],
-  ['bomb', C.danger, 'Bomb', 'Blows a diamond 2 squares wide, smashing walls and severing your tail. Drive over it first to defuse it for points.'],
-  ['pit', C.ink, 'Sinkhole', 'Flashes red, then opens. Fall in and you lose a life. If it opens under your body, you lose the tail.'],
-  ['portA', C.amber, 'Wormhole', 'Paired holes. Enter one and pop out of the other.'],
-  ['bug1', C.ink, 'Bug', 'Shows up every 5 snacks and scuttles around. The faster you catch it, the more it pays.'],
-  ...POWER_TYPES.map(t => [t, C.amber, POWERS[t].label[0] + POWERS[t].label.slice(1).toLowerCase(), POWERS[t].desc]),
+  ['food', IC.food, 'Snack', 'Eat within 2.6s of the last one to stack a combo up to x9.'],
+  ['bomb', IC.bomb, 'Bomb', 'Blows a diamond 2 squares wide, smashing walls and severing your tail. Drive over it first to defuse it for points.'],
+  ['pit', IC.pit, 'Sinkhole', 'Flashes red, then opens. Fall in and you lose a life. If it opens under your body, you lose the tail.'],
+  ['portA', IC.portal, 'Wormhole', 'Paired holes. Enter one and pop out of the other.'],
+  ['bug1', IC.bug, 'Bug', 'Shows up every 5 snacks and scuttles around. The faster you catch it, the more it pays.'],
+  ...POWER_TYPES.map(t => [t, IC[t], POWERS[t].label[0] + POWERS[t].label.slice(1).toLowerCase(), POWERS[t].desc]),
 ];
 function icon(sp, col) {
   const c = document.createElement('canvas'); c.width = c.height = 60; const x = c.getContext('2d');
   x.fillStyle = C.lcd; x.fillRect(0, 0, 60, 60);
-  if (sp === 'pit') { x.fillStyle = C.ink; x.fillRect(0, 0, 60, 60); sprite(x, SP.pit, 0, 0, 60, C.lcd, 0.35); }
-  else if (sp) sprite(x, SP[sp], 0, 0, 60, col);
+  if (sp === 'pit') { x.fillStyle = IC.pit; x.fillRect(0, 0, 60, 60); sprite(x, SP.pit, 0, 0, 60, IC.pitWarn, 0.9); }
+  else if (sp) sprite(x, SP[sp], 0, 0, 60, col, 1, 0.25);
   return c;
 }
 const CHAOS_GUIDE = [
@@ -921,10 +927,10 @@ function showGuide() {
   const list = document.getElementById('guideItems');
   const add = (c, name, desc) => { const li = document.createElement('li'); const t = document.createElement('div'); t.innerHTML = `<b>${name}</b> ${desc}`; if (c) li.append(c); li.append(t); list.append(li); };
   GUIDE.slice(0, 5).forEach(([sp, col, name, desc]) => add(icon(sp, col), name, desc));
-  list.insertAdjacentHTML('beforeend', '<li><span class="sec">Power-ups (amber boxes)</span></li>');
+  list.insertAdjacentHTML('beforeend', '<li><span class="sec">Power-ups (glowing boxes)</span></li>');
   GUIDE.slice(5).forEach(([sp, col, name, desc]) => add(icon(sp, col), name, desc));
   list.insertAdjacentHTML('beforeend', '<li><span class="sec">Chaos events (every 20s or so)</span></li>');
-  CHAOS_GUIDE.forEach(([name, desc]) => add(null, name, desc));
+  CHAOS_GUIDE.forEach(([name, desc]) => { const c = document.createElement('canvas'); c.width = c.height = 60; const x = c.getContext('2d'); x.fillStyle = (CHAOS.find(k => k.name === name) || {}).col || C.danger; x.fillRect(0, 0, 60, 60); add(c, name, desc); });
   ovl.scrollTop = 0;
   document.getElementById('btnGo').onclick = start;
   document.getElementById('btnGo').focus({ preventScroll: true });
