@@ -51,7 +51,7 @@ body {
 header { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
 header h1 { flex: 1; min-width: 0; white-space: nowrap; }
 @media (max-width: 480px) { h1 { font-size: 17px; } h1 small { display: none; } }
-@media (hover: none), (pointer: coarse) { #btnPause { display: none; } }
+#btnPause { min-width: 44px; }
 h1 { font-family: var(--display); font-weight: 700; font-size: 22px; letter-spacing: .04em; margin: 0; color: var(--lcd); text-wrap: balance; }
 h1 small { font-weight: 400; font-size: 12px; color: var(--muted); letter-spacing: .12em; margin-left: 6px; }
 .iconbtns { display: flex; gap: 8px; }
@@ -85,6 +85,14 @@ canvas#game { display: block; background: var(--lcd); border-radius: 0 0 4px 4px
 .ovl p { margin: 0; font-size: 13px; max-width: 34ch; line-height: 1.45; }
 .ovl .big { font-family: var(--display); font-size: 18px; }
 .ovl .credit { font-family: var(--display); font-size: 12px; letter-spacing: .14em; text-transform: uppercase; margin-top: 4px; }
+.ovl.howto { justify-content: flex-start; overflow-y: auto; text-align: left; align-items: stretch; gap: 8px; padding: 14px 14px 0; overscroll-behavior: contain; }
+.ovl.howto h2 { font-size: 20px; text-align: center; }
+.items { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 7px; }
+.items li { display: flex; gap: 9px; align-items: flex-start; font-size: 12px; line-height: 1.35; }
+.items li b { font-family: var(--display); font-weight: 700; font-size: 12px; letter-spacing: .03em; }
+.items canvas { flex: none; width: 26px; height: 26px; border-radius: 3px; image-rendering: pixelated; box-shadow: 0 0 0 1px rgba(30,41,19,.25); }
+.items .sec { font-family: var(--display); font-size: 11px; letter-spacing: .12em; text-transform: uppercase; margin-top: 4px; display: block; }
+.ovl .go { position: sticky; bottom: 0; margin: 4px -14px 0; padding: 10px 14px 14px; background: linear-gradient(rgba(182,197,146,0), rgba(182,197,146,.98) 30%); display: flex; justify-content: center; }
 .ovl button { background: var(--ink); color: var(--lcd); border-color: var(--ink); font-size: 15px; padding: 10px 22px; }
 
 .pad { display: none; grid-template-columns: repeat(3, 64px); grid-template-rows: repeat(3, 56px); gap: 6px; justify-content: center; touch-action: none; user-select: none; -webkit-user-select: none; }
@@ -116,7 +124,7 @@ canvas#game { display: block; background: var(--lcd); border-radius: 0 0 4px 4px
     <h1>SNAKE II <small>MAYHEM</small></h1>
     <div class="iconbtns">
       <button id="btnSound" type="button" aria-pressed="true">Sound on</button>
-      <button id="btnPause" type="button">Pause</button>
+      <button id="btnPause" type="button" aria-label="Pause">II</button>
     </div>
   </header>
 
@@ -139,7 +147,6 @@ canvas#game { display: block; background: var(--lcd); border-radius: 0 0 4px 4px
   <div class="pad" id="pad" aria-label="Direction pad">
     <button class="u" data-d="up" type="button" aria-label="Up">▲</button>
     <button class="l" data-d="left" type="button" aria-label="Left">◀</button>
-    <button class="p" data-d="pause" type="button" aria-label="Pause">II</button>
     <button class="r" data-d="right" type="button" aria-label="Right">▶</button>
     <button class="d" data-d="down" type="button" aria-label="Down">▼</button>
   </div>
@@ -362,7 +369,7 @@ function ensureFood() {
 const OPP = { up: 'down', down: 'up', left: 'right', right: 'left' };
 const DV = { up: [0, -1], down: [0, 1], left: [-1, 0], right: [1, 0] };
 function turn(name) {
-  if (mode === 'title' || mode === 'over') return;
+  if (mode !== 'play' && mode !== 'pause') return;
   if (mode === 'pause') { setMode('play'); }
   if (S.fx.mirror > 0) name = OPP[name];
   const d = DV[name];
@@ -810,7 +817,8 @@ function frame(t) {
 const ovl = document.getElementById('ovl');
 function setMode(m) {
   mode = m;
-  document.getElementById('btnPause').textContent = m === 'pause' ? 'Resume' : 'Pause';
+  const bp = document.getElementById('btnPause'); bp.textContent = m === 'pause' ? '▶' : 'II'; bp.setAttribute('aria-label', m === 'pause' ? 'Resume' : 'Pause');
+  ovl.classList.toggle('howto', m === 'guide');
   if (m === 'play') { ovl.hidden = true; return; }
   ovl.hidden = false;
   if (m === 'pause') {
@@ -830,7 +838,7 @@ function familyLine() {
 }
 function start() { audio(); family.reset(); newGame(); setMode('play'); banner('LEVEL 1', MAZES[0].name, 1400); SFX.level(); }
 
-document.getElementById('btnStart').onclick = start;
+document.getElementById('btnStart').onclick = showGuide;
 document.getElementById('ovlBest').textContent = best ? 'BEST ' + best : '';
 document.getElementById('btnPause').onclick = () => { if (mode === 'play') setMode('pause'); else if (mode === 'pause') setMode('play'); };
 const btnSound = document.getElementById('btnSound');
@@ -843,9 +851,9 @@ window.addEventListener('keydown', e => {
   if (KEYS[e.key]) { e.preventDefault(); turn(KEYS[e.key]); return; }
   if (e.key === ' ' || e.key === 'p' || e.key === 'P' || e.key === 'Escape') {
     e.preventDefault();
-    if (mode === 'play') setMode('pause'); else if (mode === 'pause') setMode('play'); else if (e.key === ' ') start();
+    if (mode === 'play') setMode('pause'); else if (mode === 'pause') setMode('play'); else if (e.key === ' ') (mode === 'title' ? showGuide() : start());
   }
-  if (e.key === 'Enter' && (mode === 'title' || mode === 'over')) start();
+  if (e.key === 'Enter' && mode === 'title') showGuide(); else if (e.key === 'Enter' && (mode === 'guide' || mode === 'over')) start();
   if (e.key === 'm' || e.key === 'M') btnSound.click();
 });
 
@@ -883,15 +891,43 @@ const GUIDE = [
   ['bug1', C.ink, 'Bug', 'Shows up every 5 snacks and scuttles around. The faster you catch it, the more it pays.'],
   ...POWER_TYPES.map(t => [t, C.amber, POWERS[t].label[0] + POWERS[t].label.slice(1).toLowerCase(), POWERS[t].desc]),
 ];
-const ul = document.getElementById('guide');
-for (const [sp, col, name, desc] of GUIDE) {
-  const li = document.createElement('li'), c = document.createElement('canvas');
-  c.width = c.height = 60; const x = c.getContext('2d');
+function icon(sp, col) {
+  const c = document.createElement('canvas'); c.width = c.height = 60; const x = c.getContext('2d');
   x.fillStyle = C.lcd; x.fillRect(0, 0, 60, 60);
   if (sp === 'pit') { x.fillStyle = C.ink; x.fillRect(0, 0, 60, 60); sprite(x, SP.pit, 0, 0, 60, C.lcd, 0.35); }
-  else sprite(x, SP[sp], 0, 0, 60, col);
+  else if (sp) sprite(x, SP[sp], 0, 0, 60, col);
+  return c;
+}
+const CHAOS_GUIDE = [
+  ['BOMB RAIN', 'A load of bombs land at once with short fuses.'],
+  ['MIRROR', 'Your controls are flipped for 6 seconds.'],
+  ['SURGE', 'The snake goes double speed for 5 seconds.'],
+  ['QUAKE', 'The walls shift to new spots.'],
+  ['SINKHOLES', 'A swarm of holes starts opening around you.'],
+];
+const ul = document.getElementById('guide');
+for (const [sp, col, name, desc] of GUIDE) {
+  const li = document.createElement('li');
   const t = document.createElement('div'); t.innerHTML = `<b>${name}.</b> ${desc}`;
-  li.append(c, t); ul.append(li);
+  li.append(icon(sp, col), t); ul.append(li);
+}
+function showGuide() {
+  audio(); setMode('guide');
+  const fam = typeof family !== 'undefined' && family.on;
+  ovl.innerHTML = `<h2>HOW TO PLAY</h2>
+    <p>Steer with the D-pad or swipe. Walls kill, but the screen edges wrap around. 3 lives. New maze every 8 snacks${fam ? ', worth 1 family point' : ''}.</p>
+    <ul class="items" id="guideItems"><li><span class="sec">Things on the board</span></li></ul>
+    <div class="go"><button id="btnGo" type="button">Start</button></div>`;
+  const list = document.getElementById('guideItems');
+  const add = (c, name, desc) => { const li = document.createElement('li'); const t = document.createElement('div'); t.innerHTML = `<b>${name}</b> ${desc}`; if (c) li.append(c); li.append(t); list.append(li); };
+  GUIDE.slice(0, 5).forEach(([sp, col, name, desc]) => add(icon(sp, col), name, desc));
+  list.insertAdjacentHTML('beforeend', '<li><span class="sec">Power-ups (amber boxes)</span></li>');
+  GUIDE.slice(5).forEach(([sp, col, name, desc]) => add(icon(sp, col), name, desc));
+  list.insertAdjacentHTML('beforeend', '<li><span class="sec">Chaos events (every 20s or so)</span></li>');
+  CHAOS_GUIDE.forEach(([name, desc]) => add(null, name, desc));
+  ovl.scrollTop = 0;
+  document.getElementById('btnGo').onclick = start;
+  document.getElementById('btnGo').focus({ preventScroll: true });
 }
 const chaosLi = document.createElement('li');
 chaosLi.innerHTML = '<div><b>Chaos events.</b> Every 20 seconds or so: bomb rain, mirrored controls, speed surges, earthquakes that shove the walls, and sinkhole swarms. Every 8 snacks the maze changes.</div>';
