@@ -739,7 +739,7 @@ function viewPlay(){
   return `<div class="stack">
     ${header("Play", "Games for the whole family")}
     <div class="game-grid">
-      <button class="game g5" data-act="open-snake"><span class="ico">${ic("snake")}</span><span><h3>Snake II Mayhem</h3><span class="small">Bombs, sinkholes and chaos. Built by Brad Evans</span></span></button>
+      <button class="game g5" data-act="open-snake"><span class="ico">${ic("snake")}</span><span><h3>Snake II Mayhem</h3><span class="small">Bombs, sinkholes and chaos. Built by Brad Evans</span><span class="small num" style="display:block;font-weight:700">${gameToday(m.id,"snake")}/${GAME_CAP} pts today, 1 a level</span></span></button>
       <button class="game g2" data-play="movie"><span class="ico">${ic("film")}</span><span><h3>Movie night</h3><span class="small">Suggest, vote, pick</span></span></button>
       <button class="game g1" data-play="ttt"><span class="ico">${ic("grid")}</span><span><h3>Noughts &amp; crosses</h3><span class="small">Play each other live</span></span></button>
       <button class="game g3" data-act="start-spell"><span class="ico">${ic("abc")}</span><span><h3>Spelling Bee</h3><span class="small num">${gameToday(m.id,"spelling")}/${GAME_CAP} pts today</span><span class="bar" style="display:block;margin-top:6px"><i style="width:${gameToday(m.id,"spelling")/GAME_CAP*100}%"></i></span></span></button>
@@ -748,7 +748,7 @@ function viewPlay(){
     <div class="card stack">
       <div class="row between"><h2>Learning level</h2><span class="tag" style="--pc:var(--accent)">${["","Starter","Middle","Senior"][lvl]}</span></div>
       <div class="seg" role="group" aria-label="Level">${[1,2,3].map(l => `<button data-level="${l}" aria-pressed="${l===lvl}">${["","Starter","Middle","Senior"][l]}</button>`).join("")}</div>
-      <p class="small muted">Spelling Bee gives 2 points a word and Maths Sprint 1 point an answer, up to ${GAME_CAP} points each per day.</p>
+      <p class="small muted">Spelling Bee gives 2 points a word, Maths Sprint 1 point an answer and Snake 1 point a level, up to ${GAME_CAP} points each per day.</p>
     </div>
   </div>`;
 }
