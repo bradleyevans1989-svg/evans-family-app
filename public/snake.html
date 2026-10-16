@@ -241,6 +241,43 @@ const SFX = {
   tick: () => beep(1500, 0.015, 'square', 0.025),
 };
 
+// ---------- family points: 1 point per level cleared, same daily cap and ledger shape as the other games ----------
+const FAMILY_CAP = 20;
+const family = (() => {
+  let token = null, me = null;
+  try { token = JSON.parse(localStorage.getItem('evans-token')); me = JSON.parse(localStorage.getItem('evans-me')); } catch {}
+  const p2 = n => String(n).padStart(2, '0');
+  const day = () => { const d = new Date(); return `${d.getFullYear()}-${p2(d.getMonth() + 1)}-${p2(d.getDate())}`; };
+  const docId = () => `g_${me}_snake_${day()}`;
+  let today = 0, loadedFor = null, earnedThisGame = 0, queue = Promise.resolve();
+  const api = (path, body) => fetch(path, { method: body ? 'POST' : 'GET', headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token }, body: body ? JSON.stringify(body) : undefined })
+    .then(r => { if (!r.ok) throw new Error(r.status); return r.json(); });
+  async function load() {
+    if (loadedFor === day()) return;
+    const j = await api('/api/sync?v=0');
+    const d = (j.docs || []).find(x => x.coll === 'ledger' && x.id === docId());
+    today = d ? (+d.data.pts || 0) : 0; loadedFor = day();
+  }
+  return {
+    on: !!(token && me),
+    get today() { return today; },
+    get earned() { return earnedThisGame; },
+    reset() { earnedThisGame = 0; if (this.on) queue = queue.then(load).catch(() => {}); },
+    // resolves to points actually added (0 at the cap or when offline)
+    award(n) {
+      if (!this.on) return Promise.resolve(0);
+      const run = queue.then(async () => {
+        await load();
+        const total = Math.min(FAMILY_CAP, today + n), gained = total - today;
+        if (gained <= 0) return 0;
+        await api('/api/write', { op: 'set', coll: 'ledger', id: docId(), data: { who: me, pts: total, kind: 'game', game: 'snake', reason: 'Snake II Mayhem', day: day(), ts: Date.now() } });
+        today = total; earnedThisGame += gained; return gained;
+      }).catch(() => 0);
+      queue = run; return run;
+    },
+  };
+})();
+
 // ---------- state ----------
 let S = null;
 let best = parseInt(store.get('sm-best') || '0', 10) || 0;
@@ -489,6 +526,8 @@ function levelUp() {
   buildLevel(false);
   banner('LEVEL ' + S.level, m.name, 1800); SFX.level();
   addScore(50 * S.level);
+  const h = S.snake[0], game = S;
+  family.award(1).then(n => { if (n && S === game) pop(h.x, h.y + 2, '+1 FAMILY PT'); });
 }
 
 function update(dt) {
@@ -779,12 +818,17 @@ function setMode(m) {
     document.getElementById('btnGo').onclick = () => setMode('play');
   } else if (m === 'over') {
     const rec = S.score >= best && S.score > 0;
-    ovl.innerHTML = `<h2>GAME OVER</h2><p class="big">${S.score} pts${rec ? ' · NEW BEST' : ''}</p><p>Reached level ${S.level} with ${S.eaten} snacks eaten. Best: ${best}.</p><button id="btnGo" type="button">Play again</button>`;
+    ovl.innerHTML = `<h2>GAME OVER</h2><p class="big">${S.score} pts${rec ? ' · NEW BEST' : ''}</p><p>Reached level ${S.level} with ${S.eaten} snacks eaten. Best: ${best}.</p>${familyLine()}<button id="btnGo" type="button">Play again</button>`;
     document.getElementById('btnGo').onclick = start;
     document.getElementById('btnGo').focus();
   }
 }
-function start() { audio(); newGame(); setMode('play'); banner('LEVEL 1', MAZES[0].name, 1400); SFX.level(); }
+function familyLine() {
+  if (!family.on) return '';
+  const capped = family.today >= FAMILY_CAP;
+  return `<p class="big">${family.earned ? '+' + family.earned + ' family point' + (family.earned === 1 ? '' : 's') : 'No family points this game'}</p><p>${capped ? `You've hit today's ${FAMILY_CAP} point limit for Snake. Come back tomorrow.` : `Clear a level for 1 family point, up to ${FAMILY_CAP} a day. ${family.today}/${FAMILY_CAP} today.`}</p>`;
+}
+function start() { audio(); family.reset(); newGame(); setMode('play'); banner('LEVEL 1', MAZES[0].name, 1400); SFX.level(); }
 
 document.getElementById('btnStart').onclick = start;
 document.getElementById('ovlBest').textContent = best ? 'BEST ' + best : '';
