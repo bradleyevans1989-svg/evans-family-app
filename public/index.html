@@ -197,6 +197,7 @@ textarea.input{min-height:72px;resize:vertical}
 .g2{background:linear-gradient(150deg,#D7C6FA,#B49CF2)}
 .g3{background:linear-gradient(150deg,#FFE29A,#FFC56B)}
 .g4{background:linear-gradient(150deg,#AEE8DF,#7FD3C9)}
+.g5{background:linear-gradient(150deg,#D3E3A8,#A9C27A);grid-column:1/-1;min-height:0;flex-direction:row;align-items:center;justify-content:flex-start;gap:14px}
 .bar{height:8px;border-radius:4px;background:var(--line);overflow:hidden}
 .bar i{display:block;height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:4px}
 .game .bar{background:rgba(255,255,255,.55)}
@@ -287,6 +288,7 @@ const ICON = {
   star:'<path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z"/>',
   left:'<path d="M15 18l-6-6 6-6"/>', right:'<path d="M9 18l6-6-6-6"/>',
   heart:'<path d="M20.8 5.6a5 5 0 0 0-7.1 0L12 7.3l-1.7-1.7a5 5 0 1 0-7.1 7.1L12 21.5l8.8-8.8a5 5 0 0 0 0-7.1z"/>',
+  snake:'<path d="M4 18h9a3 3 0 0 0 0-6H9a3 3 0 0 1 0-6h8"/><circle cx="19" cy="6" r="1.6"/>',
   film:'<rect x="3" y="3" width="18" height="18" rx="3"/><path d="M7 3v18M17 3v18M3 8h4M3 16h4M17 8h4M17 16h4"/>',
   grid:'<path d="M9 3v18M15 3v18M3 9h18M3 15h18"/>',
   abc:'<path d="M4 18l4-12 4 12M5.5 14h5"/><path d="M15 6v12h3a3 3 0 0 0 0-6h-3 2.5a3 3 0 0 0 0-6H15"/>',
@@ -737,6 +739,7 @@ function viewPlay(){
   return `<div class="stack">
     ${header("Play", "Games for the whole family")}
     <div class="game-grid">
+      <button class="game g5" data-act="open-snake"><span class="ico">${ic("snake")}</span><span><h3>Snake II Mayhem</h3><span class="small">Bombs, sinkholes and chaos. Built by Brad Evans</span></span></button>
       <button class="game g2" data-play="movie"><span class="ico">${ic("film")}</span><span><h3>Movie night</h3><span class="small">Suggest, vote, pick</span></span></button>
       <button class="game g1" data-play="ttt"><span class="ico">${ic("grid")}</span><span><h3>Noughts &amp; crosses</h3><span class="small">Play each other live</span></span></button>
       <button class="game g3" data-act="start-spell"><span class="ico">${ic("abc")}</span><span><h3>Spelling Bee</h3><span class="small num">${gameToday(m.id,"spelling")}/${GAME_CAP} pts today</span><span class="bar" style="display:block;margin-top:6px"><i style="width:${gameToday(m.id,"spelling")/GAME_CAP*100}%"></i></span></span></button>
@@ -1137,6 +1140,7 @@ document.addEventListener("click", async ev => {
     case "ttt-quit": { const g = tttGame() || {}; await store.set("games","ttt", {scores: g.scores||{}, ts: Date.now()}); break; }
     case "start-spell": clearGame(); startSpelling(); break;
     case "start-maths": clearGame(); startMaths(); break;
+    case "open-snake": location.href = "/snake.html"; break;
     case "say": say(st.game.words[st.game.i]); break;
     case "say-slow": say(st.game.words[st.game.i], .5); break;
     case "say-sentence": { const g = st.game, w = g.words[g.i], sn = SENTENCES[w]; if(!sn) break;
