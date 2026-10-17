@@ -399,7 +399,7 @@ function render(){
   if(st.tab==="chat" && st.thread){ markRead(st.thread); requestAnimationFrame(() => window.scrollTo(0, document.body.scrollHeight)); }
 }
 
-function go(tab, extra={}){ Object.assign(st, {tab, thread:null, play:null}, extra); render(); window.scrollTo(0,0); }
+function go(tab, extra={}){ Object.assign(st, {tab, thread:null, play:null}, extra); if(st.rut) st.rut.open = false; render(); window.scrollTo(0,0); }
 
 // ---------- chrome ----------
 function header(title, sub){
@@ -446,6 +446,7 @@ function bindWelcome(){ const p = $("#pin"); if(p) p.focus(); }
 
 // ---------- home ----------
 function viewHome(){
+  if(st.rut && st.rut.open) return rutView();
   const m = me(), now = new Date(), tk = todayKey();
   const hour = now.getHours(); const hi = hour<12 ? "Morning" : hour<17 ? "Afternoon" : "Evening";
   const myJobs = S.jobs.filter(j => (j.status==="open") && (j.assignee===m.id || j.assignee==="anyone"));
@@ -466,6 +467,8 @@ function viewHome(){
 
     <div class="section-head"><h2>Today</h2><button class="link" data-go="cal">Calendar</button></div>
     ${evs.length ? `<div class="list">${evs.map(e => eventItem(e, tk)).join("")}</div>` : `<div class="empty">Nothing on today. Tap + to add something to the calendar.</div>`}
+
+    <button class="game g4" style="width:100%;min-height:0;flex-direction:row;align-items:center;gap:14px" data-act="rut-open"><span class="ico">${ic("bulb")}</span><span class="grow"><h3>Stuck in a rut?</h3><span class="small">Type what you're stuck with and get ideas to shake it up</span></span>${ic("right")}</button>
 
     <div class="game-grid">
       <button class="game g3" data-go="cal" data-seg="meals"><span class="ico">${ic("food")}</span><span><span class="small" style="font-weight:700">Dinner tonight</span><h3>${meal && meal.dinner ? esc(meal.dinner) : "Not planned yet"}</h3>${meal && meal.cook ? `<span class="small">${esc(who(meal.cook))} is cooking</span>` : ""}</span></button>
@@ -735,7 +738,6 @@ function threadView(key){
 function viewPlay(){
   if(st.play==="movie") return movieView();
   if(st.play==="ttt") return tttView();
-  if(st.play==="rut") return rutView();
   const m = me();
   const lvl = learnLevel();
   return `<div class="stack">
@@ -746,7 +748,6 @@ function viewPlay(){
       <button class="game g1" data-play="ttt"><span class="ico">${ic("grid")}</span><span><h3>Noughts &amp; crosses</h3><span class="small">Play each other live</span></span></button>
       <button class="game g3" data-act="start-spell"><span class="ico">${ic("abc")}</span><span><h3>Spelling Bee</h3><span class="small num">${gameToday(m.id,"spelling")}/${GAME_CAP} pts today</span><span class="bar" style="display:block;margin-top:6px"><i style="width:${gameToday(m.id,"spelling")/GAME_CAP*100}%"></i></span></span></button>
       <button class="game g4" data-act="start-maths"><span class="ico">${ic("calc")}</span><span><h3>Maths Sprint</h3><span class="small num">${gameToday(m.id,"maths")}/${GAME_CAP} pts today</span><span class="bar" style="display:block;margin-top:6px"><i style="width:${gameToday(m.id,"maths")/GAME_CAP*100}%"></i></span></span></button>
-      <button class="game g2" style="grid-column:1/-1;min-height:96px" data-play="rut"><span class="ico">${ic("bulb")}</span><span><h3>Stuck in a rut?</h3><span class="small">Type what you're stuck with and get ideas to shake it up</span></span></button>
     </div>
     <div class="card stack">
       <div class="row between"><h2>Learning level</h2><span class="tag" style="--pc:var(--accent)">${["","Starter","Middle","Senior"][lvl]}</span></div>
@@ -779,7 +780,7 @@ function rutView(){
       ${r.feelings && !r.big ? `<p class="note">If it's been feeling heavy for a while, talk to Mum or Dad. Kids Helpline is on 1800 55 1800 any time.</p>` : ""}
       <div class="row"><button class="btn grow" data-act="rut-more">Different ideas</button><button class="btn ghost grow" data-act="rut-share">${ic("chat")} Ask the family</button></div>` : "";
   return `<div class="stack">
-    <header class="top"><button class="iconbtn" data-act="back-play" aria-label="Back">${ic("left")}</button><div class="who grow"><b>Stuck in a rut?</b><span class="muted small">Get ideas for what to change</span></div></header>
+    <header class="top"><button class="iconbtn" data-act="rut-back" aria-label="Back">${ic("left")}</button><div class="who grow"><b>Stuck in a rut?</b><span class="muted small">Get ideas for what to change</span></div></header>
     <form id="rut-form" class="card stack">
       <label class="f">What are you stuck in a rut with?<textarea class="input" id="rut-in" maxlength="300" placeholder="Homework, being bored after school, too much time on my phone…">${esc(r.text)}</textarea></label>
       <button class="btn accent block" type="submit">${ic("bulb")} Give me ideas</button>
@@ -790,7 +791,7 @@ function rutView(){
 function rutRun(text){
   text = (text || "").trim(); if(!text){ toast("Type what you're stuck with first"); return; }
   const big = RUT_BIG.test(text.toLowerCase());
-  st.rut = big ? {text, big} : {text, big, ...rutIdeas(text)};
+  st.rut = big ? {open: true, text, big} : {open: true, text, big, ...rutIdeas(text)};
   render();
 }
 
@@ -1169,6 +1170,8 @@ document.addEventListener("click", async ev => {
     case "reward-del": if(d.custom==="1") store.del("rewards", id); else saveSettings({["hide_"+id]: true}); break;
     case "back-chat": st.thread = null; render(); break;
     case "back-play": st.play = null; render(); break;
+    case "rut-open": st.tab = "home"; st.rut = {...(st.rut||{text:""}), open: true}; render(); window.scrollTo(0,0); break;
+    case "rut-back": if(st.rut) st.rut.open = false; render(); window.scrollTo(0,0); break;
     case "rut-more": if(st.rut) rutRun(st.rut.text); break;
     case "rut-share": if(st.rut && st.rut.text && await store.add("messages", {from: st.me, to: "family", text: `I'm stuck in a rut with: ${st.rut.text}. Any ideas?`})){ toast("Sent to Family chat"); } break;
     case "add-movie": movieSheet(); break;
