@@ -277,6 +277,7 @@ const pick = a => a[Math.floor(Math.random()*a.length)];
 const ls = { get(k,d){ try{ const v = localStorage.getItem(k); return v==null?d:JSON.parse(v);}catch{return d;} }, set(k,v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch{} } };
 
 const ICON = {
+  bulb:'<path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 0 0-4 10.5c.7.7 1 1.5 1 2.5h6c0-1 .3-1.8 1-2.5A6 6 0 0 0 12 3z"/>',
   bell:'<path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/>',
   repeat:'<path d="M17 2l4 4-4 4"/><path d="M3 11V9a3 3 0 0 1 3-3h15"/><path d="M7 22l-4-4 4-4"/><path d="M21 13v2a3 3 0 0 1-3 3H3"/>',
   home:'<path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/>',
@@ -734,6 +735,7 @@ function threadView(key){
 function viewPlay(){
   if(st.play==="movie") return movieView();
   if(st.play==="ttt") return tttView();
+  if(st.play==="rut") return rutView();
   const m = me();
   const lvl = learnLevel();
   return `<div class="stack">
@@ -744,6 +746,7 @@ function viewPlay(){
       <button class="game g1" data-play="ttt"><span class="ico">${ic("grid")}</span><span><h3>Noughts &amp; crosses</h3><span class="small">Play each other live</span></span></button>
       <button class="game g3" data-act="start-spell"><span class="ico">${ic("abc")}</span><span><h3>Spelling Bee</h3><span class="small num">${gameToday(m.id,"spelling")}/${GAME_CAP} pts today</span><span class="bar" style="display:block;margin-top:6px"><i style="width:${gameToday(m.id,"spelling")/GAME_CAP*100}%"></i></span></span></button>
       <button class="game g4" data-act="start-maths"><span class="ico">${ic("calc")}</span><span><h3>Maths Sprint</h3><span class="small num">${gameToday(m.id,"maths")}/${GAME_CAP} pts today</span><span class="bar" style="display:block;margin-top:6px"><i style="width:${gameToday(m.id,"maths")/GAME_CAP*100}%"></i></span></span></button>
+      <button class="game g2" style="grid-column:1/-1;min-height:96px" data-play="rut"><span class="ico">${ic("bulb")}</span><span><h3>Stuck in a rut?</h3><span class="small">Type what you're stuck with and get ideas to shake it up</span></span></button>
     </div>
     <div class="card stack">
       <div class="row between"><h2>Learning level</h2><span class="tag" style="--pc:var(--accent)">${["","Starter","Middle","Senior"][lvl]}</span></div>
@@ -753,6 +756,146 @@ function viewPlay(){
   </div>`;
 }
 function learnLevel(){ const m = me(); return ls.get(`evans-level-${m.id}`, m.level || 3); }
+
+// stuck in a rut: ideas are picked from the themes the words match
+const RUT = [
+  {k:"school", w:/school|homework|study|studying|exam|test|assignment|class|teacher|grades?|marks|maths|english|science|essay/, ideas:[
+    "Do 20 minutes, then a 5 minute break. Set a timer and stop when it rings.",
+    "Start with the easiest bit first, just to get going.",
+    "Move somewhere different to study, like the kitchen table or outside.",
+    "Teach what you're learning to someone else in the family. Explaining it makes it stick.",
+    "Put your phone in another room while you work.",
+    "Write down the three things that are due next, and only look at the first one.",
+    "Ask your teacher one question about the bit you're stuck on.",
+    "Study with a friend on a video call and keep each other going."]},
+  {k:"fitness", w:/fit|fitness|exercise|gym|run|running|weight|lazy|unfit|sport|footy|training|walk|steps|body/, ideas:[
+    "Go for a 10 minute walk straight after dinner.",
+    "Try a sport or class you've never done, just once.",
+    "Pick a song and dance or move for the whole thing.",
+    "Ask someone in the family to be your exercise buddy this week.",
+    "Set a tiny goal, like 10 push-ups a day, and tick it off on the calendar.",
+    "Walk or ride somewhere you'd normally get driven.",
+    "Try a free YouTube workout in the lounge room."]},
+  {k:"bored", w:/bored|boring|same|routine|nothing to do|every day|groundhog|repeat|samey|dull|stuck/, ideas:[
+    "Change one small thing about your day, like a new way home or a different breakfast.",
+    "Learn one new thing this week from a YouTube video: a card trick, a recipe, a skill.",
+    "Plan a day out with the family to somewhere none of you have been.",
+    "Swap a chore with someone else in the family for a week.",
+    "Start a 30 day challenge: draw, write or photograph one thing every day.",
+    "Rearrange your bedroom furniture.",
+    "Say yes to the next thing someone invites you to."]},
+  {k:"screens", w:/phone|screen|tiktok|youtube|games?|gaming|xbox|playstation|switch|scroll|instagram|snapchat|social media|tablet|ipad/, ideas:[
+    "Charge your phone outside your bedroom tonight.",
+    "Turn off notifications for one app for a week.",
+    "Swap your first 30 minutes of scrolling for something with your hands: cooking, drawing or Lego.",
+    "Pick one screen-free evening a week and play a board game together.",
+    "Move your most-used app off your home screen.",
+    "Set a timer when you start scrolling and stop when it goes off."]},
+  {k:"sleep", w:/sleep|tired|exhausted|bed|wake|waking|insomnia|late|morning|energy|nap/, ideas:[
+    "Go to bed 15 minutes earlier than usual for a week.",
+    "No screens in the last half hour before bed.",
+    "Get outside in the sunlight for 10 minutes soon after you wake up.",
+    "Keep the same wake-up time on weekends too.",
+    "Write tomorrow's to-do list before bed so it's out of your head.",
+    "Swap a late energy drink or coffee for water."]},
+  {k:"food", w:/food|eat|eating|dinner|lunch|breakfast|cook|cooking|meals?|snack|junk|healthy|diet/, ideas:[
+    "Cook one new recipe this week and add it to the meal plan.",
+    "Let a different person pick dinner each night.",
+    "Try one fruit or vegetable you've never had.",
+    "Pack tomorrow's lunch the night before.",
+    "Have a themed dinner night, like tacos or homemade pizza.",
+    "Drink a glass of water before every meal."]},
+  {k:"friends", w:/friend|friends|lonely|alone|social|mates|nobody|left out|fight|argument|group/, ideas:[
+    "Message one person you haven't talked to in a while.",
+    "Join a club, team or group at school or nearby.",
+    "Invite a friend over for something simple, like a movie or a walk.",
+    "Sit with someone new at lunch.",
+    "If you've had a fight, send a short message saying you want to sort it out.",
+    "Do something kind for a friend without being asked."]},
+  {k:"family", w:/brother|sister|sibling|mum|dad|parents?|family|fight|fighting|argue|annoying/, ideas:[
+    "Plan a one-on-one hour with someone in the family, doing what they like.",
+    "Write a note to someone in the family about something you like about them.",
+    "Pick a family movie night film together using the Movie night picker.",
+    "Agree on a family rule together instead of arguing about it every time.",
+    "Play noughts and crosses with someone you've been clashing with.",
+    "Cook dinner together one night this week."]},
+  {k:"motivation", w:/motivat|procrastinat|can't be bothered|cant be bothered|lazy|unmotivated|start|putting off|goals?|focus|distract/, ideas:[
+    "Do just two minutes of the thing. Often that's enough to keep going.",
+    "Break it into the smallest possible first step and do only that.",
+    "Tell someone in the family your goal so they can check in.",
+    "Reward yourself afterwards with something small you enjoy.",
+    "Do it at the same time every day so it becomes a habit.",
+    "Clear your space first. A tidy desk makes it easier to start."]},
+  {k:"messy", w:/messy|mess|room|tidy|clean|cleaning|clutter|organis|organiz|chores?|jobs?/, ideas:[
+    "Set a 10 minute timer and tidy as fast as you can.",
+    "Pick one drawer or one shelf, not the whole room.",
+    "Put on music and make it a race against the song.",
+    "Add the job to the Jobs list so you earn points for it.",
+    "Give away three things you don't use any more.",
+    "Make your bed first thing. It makes the room feel tidier straight away."]},
+  {k:"work", w:/work|job|boss|career|office|shift|hours|overtime|business|clients?|money|bills|budget|save|saving|broke/, ideas:[
+    "Write down three things you'd change about your week if you could, then pick the easiest one.",
+    "Take a proper lunch break away from work every day this week.",
+    "Learn one new skill online in 15 minutes a day.",
+    "Set up an automatic transfer into savings on payday.",
+    "Plan something to look forward to at the end of the week.",
+    "Talk to someone you trust about what's bugging you at work."]},
+  {k:"creative", w:/creative|hobby|hobbies|draw|drawing|art|music|guitar|piano|write|writing|ideas|inspiration|uninspired/, ideas:[
+    "Copy something you love. It's how most artists learn.",
+    "Set a silly limit, like drawing with your other hand or writing a story in 50 words.",
+    "Try a hobby someone else in the family enjoys.",
+    "Spend 10 minutes a day on it, no matter how good it is.",
+    "Go to a library, gallery or market for ideas.",
+    "Show someone in the family what you've made this week."]},
+  {k:"feelings", w:/sad|down|flat|unhappy|stress|stressed|worried|worry|anxious|anxiety|overwhelm|angry|upset|crying|depress|mood/, ideas:[
+    "Talk to Mum or Dad about how you're feeling, even if it's hard to explain.",
+    "Get outside for 15 minutes. Fresh air and sunlight help more than you'd think.",
+    "Write down what's worrying you, then one small thing you can do about it.",
+    "Move your body: a walk, a kick of the footy, a dance in your room.",
+    "Do something kind for someone. It lifts your mood too.",
+    "Have a break from social media for a few days."]},
+];
+const RUT_ANY = [
+  "Do one thing today you've never done before, even something tiny.",
+  "Get up 20 minutes earlier and use the time just for you.",
+  "Write down what a really good week would look like, then do one part of it.",
+  "Ask someone in the family what they'd do in your shoes.",
+  "Change your scenery: go somewhere new this weekend.",
+  "Pick one habit to stop and one to start, just for this week.",
+];
+const RUT_BIG = /suicid|kill (my ?self|me)|self.?harm|hurt(ing)? my ?self|want to die|wanna die|don'?t want to (live|be alive|be here)|end (it all|my life)|no point (in )?living|cutting my ?self|abus(e|ed|ing)|hits? me|unsafe at home/;
+function rutIdeas(text){
+  const t = " " + text.toLowerCase() + " ";
+  const scored = RUT.map(th => ({th, n: (t.match(new RegExp("\\b(?:" + th.w.source + ")", "g")) || []).length})).filter(x => x.n).sort((a,b) => b.n - a.n);
+  const top = scored[0] ? shuffle(scored[0].th.ideas).slice(0, scored[1] ? 3 : 4) : [];
+  const second = scored[1] ? shuffle(scored[1].th.ideas.filter(i => !top.includes(i))).slice(0, 1) : [];
+  const ideas = [...top, ...second];
+  return {ideas: [...ideas, ...shuffle(RUT_ANY).slice(0, Math.max(1, 5 - ideas.length))].slice(0, 5), feelings: scored.some(x => x.th.k==="feelings"), matched: scored.length > 0};
+}
+function rutView(){
+  const r = st.rut || {text: ""};
+  const big = r.big ? `<div class="card stack" style="border:2px solid var(--accent)"><h2>This sounds really big</h2>
+      <p>You don't have to sort this out on your own. Please talk to Mum or Dad, or another adult you trust, today.</p>
+      <p>You can also call <b>Kids Helpline on <a href="tel:1800551800">1800 55 1800</a></b>, free and any time, or <b>Lifeline on <a href="tel:131114">13 11 14</a></b>. If someone is in danger right now, call <b><a href="tel:000">000</a></b>.</p></div>` : "";
+  const list = r.ideas ? `<div class="section-head"><h2>${r.matched ? "Things you could change" : "A few ideas to shake things up"}</h2></div>
+      <div class="list">${r.ideas.map((x,i) => `<div class="item"><span class="pill pts num">${i+1}</span><span class="grow">${esc(x)}</span></div>`).join("")}</div>
+      ${r.feelings && !r.big ? `<p class="note">If it's been feeling heavy for a while, talk to Mum or Dad. Kids Helpline is on 1800 55 1800 any time.</p>` : ""}
+      <div class="row"><button class="btn grow" data-act="rut-more">Different ideas</button><button class="btn ghost grow" data-act="rut-share">${ic("chat")} Ask the family</button></div>` : "";
+  return `<div class="stack">
+    <header class="top"><button class="iconbtn" data-act="back-play" aria-label="Back">${ic("left")}</button><div class="who grow"><b>Stuck in a rut?</b><span class="muted small">Get ideas for what to change</span></div></header>
+    <form id="rut-form" class="card stack">
+      <label class="f">What are you stuck in a rut with?<textarea class="input" id="rut-in" maxlength="300" placeholder="Homework, being bored after school, too much time on my phone…">${esc(r.text)}</textarea></label>
+      <button class="btn accent block" type="submit">${ic("bulb")} Give me ideas</button>
+    </form>
+    ${big}${list}
+  </div>`;
+}
+function rutRun(text){
+  text = (text || "").trim(); if(!text){ toast("Type what you're stuck with first"); return; }
+  const big = RUT_BIG.test(text.toLowerCase());
+  st.rut = big ? {text, big} : {text, big, ...rutIdeas(text)};
+  render();
+}
 
 // movie night
 function movieView(){
@@ -1129,6 +1272,8 @@ document.addEventListener("click", async ev => {
     case "reward-del": if(d.custom==="1") store.del("rewards", id); else saveSettings({["hide_"+id]: true}); break;
     case "back-chat": st.thread = null; render(); break;
     case "back-play": st.play = null; render(); break;
+    case "rut-more": if(st.rut) rutRun(st.rut.text); break;
+    case "rut-share": if(st.rut && st.rut.text && await store.add("messages", {from: st.me, to: "family", text: `I'm stuck in a rut with: ${st.rut.text}. Any ideas?`})){ toast("Sent to Family chat"); } break;
     case "add-movie": movieSheet(); break;
     case "vote": { const x = S.movies.find(m => m.id===id); if(x) store.update("movies", id, {votes: {[st.me]: !(x.votes && x.votes[st.me])}}); break; }
     case "movie-del": store.del("movies", id); break;
@@ -1161,6 +1306,9 @@ document.addEventListener("keydown", e => {
 document.addEventListener("change", e => {
   if(e.target.id==="voice-pick"){ ls.set("evans-voice", e.target.value); if(st.game && st.game.kind==="spelling") say(st.game.words[st.game.i]); }
 });
+document.addEventListener("submit", e => {
+  if(e.target.id==="rut-form"){ e.preventDefault(); e.stopImmediatePropagation(); rutRun($("#rut-in").value); }
+}, true);
 document.addEventListener("submit", async e => {
   e.preventDefault();
   if(e.target.id==="composer"){
