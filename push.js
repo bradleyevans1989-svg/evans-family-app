@@ -163,7 +163,7 @@ module.exports = function makePush(store, MEMBERS) {
     }
     if (url.pathname === "/api/push/test") {
       const subs = (await store.pushSubs()).filter(s => s.member === me && (!body.endpoint || s.endpoint === body.endpoint));
-      await Promise.all(subs.map(s => deliver(s, { title: "Notifications are on", body: `Nice one ${LABEL[me]}, this phone will now get Evans Family updates.`, tag: "test", url: "/" })));
+      await Promise.all(subs.map(s => deliver(s, { title: "Notifications are on", body: `Nice one ${LABEL[me]}, this phone will now get Family App updates.`, tag: "test", url: "/" })));
       return send(res, 200, { ok: true });
     }
     return send(res, 404, { error: "Not found" });
