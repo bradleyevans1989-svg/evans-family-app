@@ -22,7 +22,7 @@
   --accent:#FF7440; --accent2:#FFB547; --accent-ink:#FFFFFF;
   --pill:#221A2E; --pill-ink:#FFFFFF;
   --good:#23945F; --warn:#C98A0C; --bad:#D4405A;
-  --p-brad:#3A74DB; --p-elle:#DB4A79; --p-ruby:#8452F0; --p-ari:#0F9895; --p-lola:#E5791A;
+  --c-blue:#3A74DB; --c-pink:#DB4A79; --c-purple:#8452F0; --c-teal:#0F9895; --c-orange:#E5791A; --c-green:#2E9E4F; --c-red:#D64033; --c-gold:#C08A00; --c-slate:#5B6B82; --c-brown:#8B5A3C;
   --shadow:0 6px 24px -10px rgba(80,40,60,.25);
   --f-display:"Bricolage Grotesque","Avenir Next","Segoe UI",system-ui,sans-serif;
   --f-body:"Nunito","Avenir Next","Segoe UI",system-ui,sans-serif;
@@ -34,7 +34,7 @@
   --accent:#FF8A5C; --accent2:#FFC266; --accent-ink:#1B1220;
   --pill:#F7EEF4; --pill-ink:#1B1520;
   --good:#4CC28B; --warn:#F0B53D; --bad:#F06A80;
-  --p-brad:#77A5F2; --p-elle:#F27FA3; --p-ruby:#AC8DFB; --p-ari:#3FC6C1; --p-lola:#F7A659;
+  --c-blue:#77A5F2; --c-pink:#F27FA3; --c-purple:#AC8DFB; --c-teal:#3FC6C1; --c-orange:#F7A659; --c-green:#6CCB86; --c-red:#F07D73; --c-gold:#F2C94C; --c-slate:#97A6BC; --c-brown:#C4936F;
   --shadow:0 6px 24px -12px rgba(0,0,0,.6); color-scheme:dark}}
 :root[data-theme="dark"]{
   --bg:#17121D; --glow1:#3B2330; --glow2:#36203A; --glow3:#272043;
@@ -42,7 +42,7 @@
   --accent:#FF8A5C; --accent2:#FFC266; --accent-ink:#1B1220;
   --pill:#F7EEF4; --pill-ink:#1B1520;
   --good:#4CC28B; --warn:#F0B53D; --bad:#F06A80;
-  --p-brad:#77A5F2; --p-elle:#F27FA3; --p-ruby:#AC8DFB; --p-ari:#3FC6C1; --p-lola:#F7A659;
+  --c-blue:#77A5F2; --c-pink:#F27FA3; --c-purple:#AC8DFB; --c-teal:#3FC6C1; --c-orange:#F7A659; --c-green:#6CCB86; --c-red:#F07D73; --c-gold:#F2C94C; --c-slate:#97A6BC; --c-brown:#C4936F;
   --shadow:0 6px 24px -12px rgba(0,0,0,.6); color-scheme:dark}
 
 html,body{min-height:100%}
@@ -86,6 +86,8 @@ p{margin:0}
 .avatar{width:40px;height:40px;border-radius:50%;object-fit:cover;flex:none;border:2px solid var(--card);box-shadow:0 0 0 2px var(--pc,var(--line))}
 .avatar.sm{width:28px;height:28px;border-width:1.5px}
 .avatar.lg{width:64px;height:64px;border-width:3px}
+.avatar.ini{display:inline-grid;place-items:center;background:var(--pc,var(--accent));color:#fff;font-family:var(--f-display);font-weight:800;font-size:17px;line-height:1}
+.avatar.ini.sm{font-size:12px} .avatar.ini.lg{font-size:28px}
 .faces{display:flex}
 .faces .avatar{margin-left:-8px}
 .faces .avatar:first-child{margin-left:0}
@@ -151,6 +153,10 @@ textarea.input{min-height:72px;resize:vertical}
 .hero::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 45%,rgba(20,8,20,.65))}
 .hero .cap{position:absolute;left:18px;right:18px;bottom:16px;z-index:1;color:#fff}
 .hero .cap h1{font-size:34px;color:#fff}
+.hero.plain{aspect-ratio:auto;min-height:170px;background:linear-gradient(120deg,var(--glow1),var(--glow2) 55%,var(--glow3))}
+.hero.plain::after{display:none}
+.hero.plain .cap,.hero.plain .cap h1{color:var(--ink)}
+.swatch{width:18px;height:18px;border-radius:50%;background:var(--pc);display:inline-block}
 .pick{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
 .pick button{background:var(--card);border-radius:20px;padding:14px 6px 10px;display:flex;flex-direction:column;align-items:center;gap:6px;box-shadow:var(--shadow);font-weight:800}
 .pick small{color:var(--muted);font-weight:600;font-size:12px}
@@ -205,7 +211,7 @@ textarea.input{min-height:72px;resize:vertical}
 
 .ttt{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;max-width:320px;margin:0 auto;width:100%}
 .ttt button{aspect-ratio:1;border-radius:18px;background:var(--card);box-shadow:var(--shadow);font-family:var(--f-display);font-size:44px;font-weight:800}
-.ttt .x{color:var(--accent)} .ttt .o{color:var(--p-ruby)}
+.ttt .x{color:var(--accent)} .ttt .o{color:var(--c-purple)}
 .ttt .win{background:color-mix(in srgb,var(--good) 20%,var(--card))}
 
 .big-q{font-family:var(--f-display);font-size:40px;font-weight:800;text-align:center;font-variant-numeric:tabular-nums;padding:8px 0;overflow-wrap:anywhere}
@@ -228,23 +234,25 @@ textarea.input{min-height:72px;resize:vertical}
 </style>
 </head>
 <body>
-<div id="root" class="app"><p class="muted" style="padding-top:40px;text-align:center">Loading the Evans family app…</p></div>
+<div id="root" class="app"><p class="muted" style="padding-top:40px;text-align:center">Loading…</p></div>
 <div id="sheet-host"></div>
 
 <script>
 (() => {
 "use strict";
-// ---------- family ----------
-const FAM = [
-  {id:"brad", name:"Brad", label:"Dad", age:37, parent:true,  photo:"/img/brad.jpg"},
-  {id:"elle", name:"Elle", label:"Mum", age:36, parent:true,  photo:"/img/elle.jpg"},
-  {id:"ruby", name:"Ruby", label:"Ruby", age:16, level:3, photo:"/img/ruby.jpg"},
-  {id:"ari",  name:"Ari",  label:"Ari",  age:14, level:2, photo:"/img/ari.jpg"},
-  {id:"lola", name:"Lola", label:"Lola", age:12, level:1, photo:"/img/lola.jpg"},
-];
-const HERO = "/img/hero.jpg";
-const M = Object.fromEntries(FAM.map(m => [m.id, m]));
-const KIDS = FAM.filter(m => !m.parent);
+// ---------- family (each family's people come from the server) ----------
+const COLORS = ["blue","pink","purple","teal","orange","green","red","gold","slate","brown"];
+let FAMILY = null, FAM = [], M = {}, HERO = "";
+function setFamily(j){
+  FAMILY = j.family; FAM = j.members || []; M = Object.fromEntries(FAM.map(m => [m.id, m])); HERO = FAMILY.hero || "";
+  if(j.custom) customPins = j.custom;
+  let el = document.getElementById("fam-colors");
+  if(!el){ el = document.createElement("style"); el.id = "fam-colors"; document.head.appendChild(el); }
+  el.textContent = `:root{${FAM.map(m => `--p-${m.id}:var(--c-${COLORS.includes(m.color) ? m.color : "blue"});`).join("")}}`;
+  ls.set("fam-cache", j);
+}
+const famName = () => FAMILY ? FAMILY.name : "";
+const famTitle = () => `The ${famName()} Family`;
 const GAME_CAP = 20; // max points per learning game per person per day
 const DEFAULT_REWARDS = [
   {id:"d1", title:"30 min extra screen time", cost:50},
@@ -304,24 +312,30 @@ const ICON = {
 };
 const ic = (n, extra="") => `<svg class="i" viewBox="0 0 24 24" aria-hidden="true" ${extra}>${ICON[n]}</svg>`;
 const pc = id => `--pc:var(--p-${id})`;
-const av = (id, cls="") => M[id] ? `<img class="avatar ${cls}" style="${pc(id)}" src="${M[id].photo}" alt="${esc(M[id].label)}">` : "";
+const av = (id, cls="") => { const m = M[id]; if(!m) return "";
+  return m.photo ? `<img class="avatar ${cls}" style="${pc(id)}" src="${esc(m.photo)}" alt="${esc(m.label)}">`
+    : `<span class="avatar ini ${cls}" style="${pc(id)}" role="img" aria-label="${esc(m.label)}">${esc((m.name || m.label || "?").charAt(0).toUpperCase())}</span>`; };
 const who = id => M[id] ? M[id].label : "Someone";
 
 // ---------- store (talks to the family server) ----------
 const COLLS = ["events","jobs","ledger","messages","meals","prep","movies","rewards","games","settings"];
 const S = Object.fromEntries(COLLS.map(c => [c, []]));
-let token = ls.get("evans-token", null), ver = 0, syncing = false, syncAgain = false, customPins = [];
+// famToken logs this phone in to the family; token logs in the person using it.
+let token = ls.get("evans-token", null), famToken = ls.get("fam-token", null), ver = 0, famVer = 0, syncing = false, syncAgain = false, customPins = [];
 function deepMerge(a, b){ const o = {...a}; for(const k in b){ const v = b[k]; o[k] = (v && typeof v==="object" && !Array.isArray(v) && a && typeof a[k]==="object" && a[k] && !Array.isArray(a[k])) ? deepMerge(a[k], v) : v; } return o; }
 const clean = o => JSON.parse(JSON.stringify(o));
 
 async function api(path, body){
-  const r = await fetch(path, {method: body ? "POST" : "GET", headers: {"Content-Type":"application/json", ...(token ? {Authorization: "Bearer " + token} : {})}, body: body ? JSON.stringify(body) : undefined});
+  const tk = token || famToken;
+  const r = await fetch(path, {method: body ? "POST" : "GET", headers: {"Content-Type":"application/json", ...(tk ? {Authorization: "Bearer " + tk} : {})}, body: body ? JSON.stringify(body) : undefined});
   let j = {}; try{ j = await r.json(); }catch{}
-  if(r.status===401 && path!=="/api/login"){ logout(); throw Object.assign(new Error("auth"), {quiet:true}); }
+  if(r.status===401 && !["/api/family/login", "/api/family/signup"].includes(path)){ if(token) logout(); else leaveFamily(); throw Object.assign(new Error("auth"), {quiet:true}); }
   if(!r.ok) throw Object.assign(new Error(j.error || "Request failed"), {status: r.status, msg: j.error});
   return j;
 }
-function logout(){ token = null; ls.set("evans-token", null); st.me = null; ls.set("evans-me", null); ver = 0; closeSheet(); clearGame(); render(); }
+function logout(){ token = null; ls.set("evans-token", null); st.me = null; ls.set("evans-me", null); ver = 0; COLLS.forEach(c => S[c] = []); closeSheet(); clearGame(); render(); }
+// Logs this phone out of the family completely, so it needs the family email and password again.
+function leaveFamily(){ famToken = null; ls.set("fam-token", null); ls.set("fam-cache", null); FAMILY = null; FAM = []; M = {}; logout(); }
 function applyLocal(op, c, id, data){
   const i = S[c].findIndex(x => x.id===id);
   if(op==="delete"){ if(i>=0) S[c].splice(i,1); }
@@ -347,18 +361,26 @@ async function sync(){
     const j = await api("/api/sync?v=" + ver);
     if(j.docs){ COLLS.forEach(c => S[c] = []); for(const d of j.docs) if(S[d.coll]) S[d.coll].push({id: d.id, ...d.data}); scheduleRender(); }
     ver = j.v;
+    if(j.mv && famVer && j.mv !== famVer) loadFamily();
   }catch(e){ if(!e.quiet) console.warn("sync", e); }
   finally{ syncing = false; if(syncAgain){ syncAgain = false; sync(); } }
 }
-async function loadPins(){ try{ customPins = (await api("/api/pins")).custom || []; if(!st.me) render(); }catch{} }
+async function loadFamily(){
+  try{ const j = await api("/api/family"); setFamily(j); famVer = j.family.mver; st.famErr = false; scheduleRender(); return true; }
+  catch(e){ if(!e.quiet && !FAMILY){ st.famErr = true; scheduleRender(); } return false; }
+}
 const hasOwnPin = id => customPins.includes(id);
 const settings = () => S.settings.find(s => s.id==="family") || {};
 async function saveSettings(patch){
   const cur = settings(); const {id, ...rest} = cur;
   return store.set("settings", "family", deepMerge(rest, patch));
 }
-function initStore(){
-  loadPins(); sync();
+async function initStore(){
+  const cached = ls.get("fam-cache", null);
+  if(cached && cached.family && (token || famToken)) setFamily(cached);
+  if(token && !famToken){ try{ famToken = (await api("/api/device", {})).device; ls.set("fam-token", famToken); }catch{} }
+  if(token || famToken){ await loadFamily(); sync(); }
+  render();
   setInterval(() => { if(!document.hidden) sync(); }, 4000);
   document.addEventListener("visibilitychange", () => { if(!document.hidden) sync(); });
 }
@@ -392,6 +414,8 @@ function scheduleRender(){ if(rq) return; rq = requestAnimationFrame(() => { rq 
 
 function render(){
   const root = $("#root");
+  if(st.invite){ root.innerHTML = viewSignup(); return; }
+  if(!FAMILY){ root.innerHTML = (token || famToken) ? viewLoading() : viewFamilyLogin(); return; }
   if(!st.me || !M[st.me] || !token){ root.innerHTML = viewWelcome(); bindWelcome(); return; }
   if(st.game) return; // a running learning game owns the screen
   if(st.tab==="chat" && st.thread && $("#composer")){ $("#msgs").innerHTML = msgsHtml(st.thread); markRead(st.thread); return; }
@@ -433,14 +457,55 @@ function viewWelcome(){
         <p>${m.parent ? "Parents need their PIN so the kids can't approve their own jobs." : "Pop in your PIN so nobody else can be you."}</p>
         <input id="pin" class="input" style="max-width:200px;text-align:center;letter-spacing:.4em;font-size:24px" inputmode="numeric" maxlength="4" autocomplete="off" aria-label="PIN">
         <button class="btn accent" data-act="unlock">Unlock</button>
-        <p class="small muted">${hasOwnPin(m.id) ? "Forgot it? Mum or Dad can reset it." : "First time? Ask Dad for your starting PIN, then change it in your profile."}</p>
+        <p class="small muted">${hasOwnPin(m.id) ? "Forgot it? Mum or Dad can reset it." : "First time? Ask Mum or Dad for your starting PIN, then change it in your profile."}</p>
       </div></div>`;
   }
   return `<div class="welcome">
-    <div class="hero"><img src="${HERO}" alt="The Evans family in matching Christmas pyjamas"><div class="cap"><p style="font-weight:700;opacity:.9">Welcome home</p><h1>The Evans Family</h1></div></div>
+    ${heroHtml("Welcome home", famTitle())}
     <h2>Who's using this phone?</h2>
-    <div class="pick">${FAM.map(m => `<button data-pick="${m.id}">${av(m.id,"lg")}<span>${esc(m.label)}</span><small>${m.parent?esc(m.name)+" · ":""}${m.age}</small></button>`).join("")}</div>
+    <div class="pick">${FAM.map(m => `<button data-pick="${m.id}">${av(m.id,"lg")}<span>${esc(m.label)}</span><small>${esc([m.label!==m.name ? m.name : "", m.age || ""].filter(Boolean).join(" · "))}</small></button>`).join("")}</div>
     <p class="note">Your phone remembers who you are. Tap your photo at the top to switch.</p>
+  </div>`;
+}
+const heroHtml = (kicker, title) => HERO
+  ? `<div class="hero"><img src="${esc(HERO)}" alt="${esc(title)}"><div class="cap"><p style="font-weight:700;opacity:.9">${esc(kicker)}</p><h1>${esc(title)}</h1></div></div>`
+  : `<div class="hero plain"><div class="cap"><p style="font-weight:700;opacity:.8">${esc(kicker)}</p><h1>${esc(title)}</h1></div></div>`;
+function viewLoading(){
+  return st.famErr ? `<div class="welcome"><div class="card stack" style="margin-top:40px;text-align:center"><h2>Can't reach the family app</h2><p class="muted">Check your connection and try again.</p><button class="btn accent" data-act="fam-retry">Try again</button></div></div>`
+    : `<p class="muted" style="padding-top:40px;text-align:center">Loading…</p>`;
+}
+function viewFamilyLogin(){
+  return `<div class="welcome">
+    ${heroHtml("Welcome to", "Family App")}
+    <form id="fam-login" class="card stack">
+      <h2>Log in to your family</h2>
+      <p class="small muted">Use your family's email and password. Each phone only needs this once, then everyone just picks their name.</p>
+      <label class="f">Email<input class="input" id="fl-email" type="email" autocomplete="username" required maxlength="120"></label>
+      <label class="f">Password<input class="input" id="fl-pass" type="password" autocomplete="current-password" required maxlength="200"></label>
+      <button class="btn accent block" type="submit">Log in</button>
+    </form>
+    <p class="note">Family App is invite only. If someone sent you an invite link, open it to set up your family. Forgot the password? A parent who's still logged in can change it in Family settings.</p>
+  </div>`;
+}
+function viewSignup(){
+  const iv = st.invite;
+  if(iv.err) return `<div class="welcome">${heroHtml("Welcome to", "Family App")}<div class="card stack"><h2>That invite didn't work</h2><p>${esc(iv.err)}</p><button class="btn ghost" data-act="invite-cancel">Back</button></div></div>`;
+  if(!iv.ok) return viewLoading();
+  return `<div class="welcome">
+    ${heroHtml("You're invited to", "Family App")}
+    <form id="signup" class="card stack">
+      <h2>Set up your family</h2>
+      <p class="small muted">Your family gets its own private calendar, jobs, chat and games. Nobody else can see it.</p>
+      <label class="f">Family name<input class="input" id="su-fam" required maxlength="40" placeholder="Smith"></label>
+      <div class="row"><label class="f grow">Your first name<input class="input" id="su-name" required maxlength="30" placeholder="Sarah"></label><label class="f grow">The kids call you<input class="input" id="su-label" maxlength="20" placeholder="Mum"></label></div>
+      <label class="f">Email<input class="input" id="su-email" type="email" required maxlength="120" autocomplete="username"></label>
+      <label class="f"><span>Password <span class="small">(at least 8 characters)</span></span><input class="input" id="su-pass" type="password" required minlength="8" maxlength="200" autocomplete="new-password"></label>
+      <label class="f"><span>Your PIN <span class="small">(4 numbers to unlock your name)</span></span><input class="input" id="su-pin" inputmode="numeric" maxlength="4" pattern="[0-9]{4}" required autocomplete="off"></label>
+      <p class="small muted">The email and password log each phone in to your family. You'll add everyone else next.</p>
+      <button class="btn accent block" type="submit">Create our family</button>
+    </form>
+    ${token || famToken ? `<p class="note">This phone is logged in to another family. Setting up a new one will log it out of that family.</p>` : ""}
+    <button class="link" data-act="invite-cancel">Not now</button>
   </div>`;
 }
 function bindWelcome(){ const p = $("#pin"); if(p) p.focus(); }
@@ -453,7 +518,9 @@ function viewHome(){
   const myJobs = S.jobs.filter(j => (j.status==="open") && (j.assignee===m.id || j.assignee==="anyone"));
   const pendingJobs = S.jobs.filter(j => j.status==="pending");
   let banner;
-  if(isParent() && pendingJobs.length) banner = {h:`${pendingJobs.length} job${pendingJobs.length>1?"s":""} waiting for your OK`, p:"Tick them off so the kids get their points.", b:"Review", go:"jobs"};
+  if(isParent() && !FAMILY.hasLogin) banner = {h:"Set your family's email and password", p:"New phones will use it to log in to your family.", b:"Set it up", act:"family-settings"};
+  else if(isParent() && FAM.length < 2) banner = {h:"Add the rest of your family", p:"Give everyone a name, a colour and a PIN.", b:"Add people", act:"family-settings"};
+  else if(isParent() && pendingJobs.length) banner = {h:`${pendingJobs.length} job${pendingJobs.length>1?"s":""} waiting for your OK`, p:"Tick them off so the kids get their points.", b:"Review", go:"jobs"};
   else if(myJobs.length) banner = {h:`You have ${myJobs.length} job${myJobs.length>1?"s":""} to do`, p:`Worth ${myJobs.reduce((a,j)=>a+(+j.pts||0),0)} points altogether.`, b:"See jobs", go:"jobs"};
   else banner = {h:"All your jobs are done", p:"Earn more in Spelling Bee or Maths Sprint.", b:"Play", go:"play"};
   const evs = eventsOn(tk);
@@ -464,7 +531,7 @@ function viewHome(){
   const recent = S.ledger.slice().sort((a,b) => b.ts-a.ts).slice(0,5);
   return `<div class="stack">
     ${header(`${hi}, ${m.label}`, `${DOW[now.getDay()]} ${now.getDate()} ${MONTHS[now.getMonth()]}`)}
-    <div class="banner"><div class="grow"><h3>${esc(banner.h)}</h3><p class="small">${esc(banner.p)}</p></div><button class="btn small" data-go="${banner.go}">${esc(banner.b)}</button></div>
+    <div class="banner"><div class="grow"><h3>${esc(banner.h)}</h3><p class="small">${esc(banner.p)}</p></div><button class="btn small" ${banner.act ? `data-act="${banner.act}"` : `data-go="${banner.go}"`}>${esc(banner.b)}</button></div>
 
     <div class="section-head"><h2>Today</h2><button class="link" data-go="cal">Calendar</button></div>
     ${evs.length ? `<div class="list">${evs.map(e => eventItem(e, tk)).join("")}</div>` : `<div class="empty">Nothing on today. Tap + to add something to the calendar.</div>`}
@@ -713,7 +780,7 @@ function unreadIn(key){ const lr = lastRead(key); return threadMsgs(key).filter(
 function unreadTotal(){ if(!st.me) return 0; return ["family", ...FAM.filter(f=>f.id!==st.me).map(f=>threadKey(f.id))].reduce((a,k)=>a+unreadIn(k),0); }
 function viewChat(){
   if(st.thread) return threadView(st.thread);
-  const rows = [{key:"family", title:"Evans Family", face:`<span class="faces">${FAM.slice(0,3).map(f=>av(f.id,"sm")).join("")}</span>`},
+  const rows = [{key:"family", title:`${famName()} Family`, face:`<span class="faces">${FAM.slice(0,3).map(f=>av(f.id,"sm")).join("")}</span>`},
     ...FAM.filter(f => f.id!==st.me).map(f => ({key: threadKey(f.id), title: f.label, face: av(f.id)}))];
   return `<div class="stack">${header("Messages","Family chat and one-on-ones")}
     <div class="list">${rows.map(r => { const ms = threadMsgs(r.key); const last = ms[ms.length-1]; const u = unreadIn(r.key);
@@ -745,7 +812,7 @@ function msgEditSheet(m){
     });
 }
 function threadView(key){
-  const title = key==="family" ? "Evans Family" : who(key.split("-").find(x => x!==st.me));
+  const title = key==="family" ? `${famName()} Family` : who(key.split("-").find(x => x!==st.me));
   return `<div class="stack">
     <header class="top"><button class="iconbtn" data-act="back-chat" aria-label="Back to messages">${ic("left")}</button><div class="who grow"><b>${esc(title)}</b><span class="muted small">${key==="family"?"Everyone sees these":"Just the two of you"}</span></div></header>
     <div class="msgs" id="msgs">${msgsHtml(key)}</div>
@@ -872,7 +939,7 @@ function tttView(){
   const turnId = g.turn==="x" ? g.x : g.o;
   const status = w ? (w.mark==="draw" ? "It's a draw" : `${who(w.mark==="x"?g.x:g.o)} wins!`) : `${turnId===st.me ? "Your" : who(turnId)+"'s"} turn`;
   return `<div class="stack">${back}
-    <div class="row between card"><div class="row">${av(g.x)}<b class="x" style="color:var(--accent);font-size:22px">X</b></div><b>vs</b><div class="row"><b style="color:var(--p-ruby);font-size:22px">O</b>${av(g.o)}</div></div>
+    <div class="row between card"><div class="row">${av(g.x)}<b class="x" style="color:var(--accent);font-size:22px">X</b></div><b>vs</b><div class="row"><b style="color:var(--c-purple);font-size:22px">O</b>${av(g.o)}</div></div>
     <h2 style="text-align:center">${esc(status)}</h2>
     <div class="ttt">${b.map((c,i) => `<button data-cell="${i}" class="${c==="x"?"x":c==="o"?"o":""} ${w&&w.line.includes(i)?"win":""}" aria-label="Square ${i+1}${c!=="."?", "+c.toUpperCase():""}">${c==="."?"":c.toUpperCase()}</button>`).join("")}</div>
     <div class="row"><button class="btn accent grow" data-act="ttt-again">${w?"Play again":"Restart"}</button><button class="btn ghost" data-act="ttt-quit">New players</button></div>
@@ -1050,10 +1117,12 @@ function profileSheet(){
   openSheet(`<div class="row">${av(m.id,"lg")}<div class="grow"><h2>${esc(m.label)}</h2><p class="muted small">${m.parent?esc(m.name)+" · ":""}${balance(m.id)} points</p></div></div>
     <div class="stack" style="margin-top:16px">
       <button class="btn block" data-act="switch">${ic("swap")} Switch person</button>
+      ${m.parent ? `<button class="btn ghost block" data-act="family-settings">${ic("home")} Family settings</button>` : ""}
       <button class="btn ghost block" data-act="go-play">${ic("play")} Games and movie night</button>
       <div class="stack card flat" id="notif-box"><h3>${ic("bell")} Notifications</h3><p class="small muted">Checking…</p></div>
       <form id="f" class="stack card flat"><h3>${m.parent ? "Change or reset a PIN" : "Change my PIN"}</h3>${m.parent ? peopleChips("pin-who", [m.id], false) : ""}<input class="input" id="new-pin" inputmode="numeric" maxlength="4" pattern="[0-9]{4}" placeholder="New 4-digit PIN" required aria-label="New PIN"><button class="btn small" type="submit">Save PIN</button></form>
       <p class="note">Everything here is shared with the family.</p>
+      ${m.parent ? `<button class="link small" type="button" data-act="fam-logout">Log this phone out of the family</button>` : ""}
     </div>`, async () => {
       const p = $("#new-pin").value.trim(); if(!/^\d{4}$/.test(p)){ toast("Use 4 numbers"); return; }
       const whoFor = m.parent ? (chipVals("pin-who")[0] || m.id) : m.id;
@@ -1061,6 +1130,96 @@ function profileSheet(){
       catch(e){ if(!e.quiet) toast(e.msg || "Couldn't change the PIN. Try again."); }
     });
   fillNotifBox();
+}
+// ---------- family settings (parents) ----------
+function familySheet(){
+  const F = FAMILY;
+  openSheet(`<h2>Family settings</h2>
+    <div class="stack" style="margin-top:12px">
+      <div class="card flat stack"><h3>People</h3>
+        <div class="list">${FAM.map(m => `<button type="button" class="item" style="text-align:left" data-act="member-edit" data-id="${m.id}">${av(m.id,"sm")}<span class="grow"><b>${esc(m.label)}</b>${m.label!==m.name?` <span class="muted">${esc(m.name)}</span>`:""}</span><span class="tag" style="${pc(m.id)}">${m.parent?"Parent":"Kid"}</span></button>`).join("")}</div>
+        <button type="button" class="btn small" data-act="member-add">${ic("plus")} Add a person</button>
+      </div>
+      <form id="f" class="card flat stack"><h3>Family name and login</h3>
+        <label class="f">Family name<input class="input" id="fs-name" required maxlength="40" value="${esc(F.name)}"></label>
+        <label class="f">Email<input class="input" id="fs-email" type="email" maxlength="120" autocomplete="username" value="${esc(F.email||"")}" ${F.hasLogin?"":"required"}></label>
+        <label class="f"><span>${F.hasLogin ? "New password" : "Password"} <span class="small">${F.hasLogin ? "(leave blank to keep it)" : "(at least 8 characters)"}</span></span><input class="input" id="fs-pass" type="password" maxlength="200" autocomplete="new-password" ${F.hasLogin?"":"required minlength=\"8\""}></label>
+        <p class="small muted">Each phone logs in to the family with this once. After that everyone just picks their name and PIN.</p>
+        <button class="btn small accent" type="submit">Save</button>
+      </form>
+      ${F.owner ? `<div class="card flat stack"><h3>Invite a family</h3><p class="small muted">Each link lets one new family set up their own private space. It works once and lasts 14 days.</p><button type="button" class="btn small accent" data-act="invite-new">${ic("plus")} Make an invite link</button><div id="invite-list" class="list"></div></div>` : ""}
+    </div>`, async () => {
+      const name = $("#fs-name").value.trim(), email = $("#fs-email").value.trim(), password = $("#fs-pass").value;
+      const patch = {};
+      if(name !== F.name) patch.name = name;
+      if(email && email !== (F.email||"")) patch.email = email;
+      if(password) patch.password = password;
+      if(!Object.keys(patch).length){ closeSheet(); return; }
+      try{ await api("/api/family/update", patch); await loadFamily(); closeSheet(); toast(patch.password ? "Family login saved" : "Saved"); }
+      catch(e){ if(!e.quiet) toast(e.msg || "That didn't save. Try again."); }
+    });
+  if(F.owner) loadInvites();
+}
+const inviteLink = code => `${location.origin}/?invite=${code}`;
+async function loadInvites(){
+  let list = [];
+  try{ list = (await api("/api/invites")).invites || []; }catch{ return; }
+  const el = $("#invite-list"); if(!el) return;
+  el.innerHTML = list.map(i => i.usedAt
+    ? `<div class="item"><span class="grow small"><b>${esc(i.family ? `The ${i.family} Family` : "A family")}</b> joined ${esc(ago(i.usedAt))}</span>${ic("check")}</div>`
+    : i.expires < Date.now() ? ""
+    : `<div class="item"><span class="grow small" style="word-break:break-all">${esc(inviteLink(i.code))}<br><span class="muted">Not used yet · made ${esc(ago(i.created))}</span></span><button type="button" class="btn small ghost" data-act="invite-copy" data-v="${esc(i.code)}">${navigator.share ? "Share" : "Copy"}</button></div>`).join("");
+}
+async function shareInvite(code){
+  const url = inviteLink(code);
+  if(navigator.share){ try{ await navigator.share({title: "Family App", text: "Here's an invite to set up your family on Family App", url}); return; }catch(e){ if(e.name==="AbortError") return; } }
+  try{ await navigator.clipboard.writeText(url); toast("Invite link copied"); }catch{ prompt("Copy this invite link", url); }
+}
+let memberPhoto; // undefined = keep the photo, "" = remove it, otherwise a new photo
+function memberSheet(m){
+  const isNew = !m; m = m || {name:"", label:"", parent:false, color: COLORS.find(c => !FAM.some(x => x.color===c)) || "blue", photo:"", age:null, level:null};
+  memberPhoto = undefined;
+  const role = m.parent ? "parent" : "kid";
+  openSheet(`<h2>${isNew ? "Add a person" : `Edit ${esc(m.label)}`}</h2>
+    <form id="f" class="stack" style="margin-top:12px">
+      <div class="row"><span id="mb-av" style="--pc:var(--c-${esc(m.color)})">${photoPreview(m.photo, m.name)}</span>
+        <label class="btn small ghost">Choose photo<input type="file" accept="image/*" id="mb-photo" hidden></label>
+        <button type="button" class="link small" data-act="photo-remove" ${m.photo?"":"hidden"} id="mb-photo-del">Remove</button></div>
+      <div class="row"><label class="f grow">First name<input class="input" id="mb-name" required maxlength="30" value="${esc(m.name)}" placeholder="Sam"></label>
+        <label class="f grow">Family calls them<input class="input" id="mb-label" maxlength="20" value="${esc(m.label!==m.name ? m.label : "")}" placeholder="Their name, or Mum"></label></div>
+      <div class="f"><span>Parent or kid?</span><div class="chips" data-chips="mb-role" data-single="1"><button type="button" class="chip noimg" data-v="parent" aria-pressed="${role==="parent"}">Parent</button><button type="button" class="chip noimg" data-v="kid" aria-pressed="${role==="kid"}">Kid</button></div>
+        <span class="small">Parents can approve jobs, give points and change family settings.</span></div>
+      <div class="f"><span>Colour</span><div class="chips" data-chips="mb-color" data-single="1">${COLORS.map(c => `<button type="button" class="chip noimg" style="--pc:var(--c-${c})" data-v="${c}" aria-pressed="${c===m.color}" aria-label="${c}"><span class="swatch"></span></button>`).join("")}</div></div>
+      <div class="row"><label class="f grow">Age<input class="input" id="mb-age" inputmode="numeric" maxlength="3" placeholder="Optional" value="${m.age||""}"></label>
+        <label class="f grow">${isNew ? "Starting PIN" : "New PIN"}<input class="input" id="mb-pin" inputmode="numeric" maxlength="4" pattern="[0-9]{4}" autocomplete="off" ${isNew?"required":""} placeholder="${isNew ? "4 numbers" : "Leave blank"}"></label></div>
+      <div class="f"><span>Learning games level</span><div class="chips" data-chips="mb-level" data-single="1">${[[1,"Starter"],[2,"Middle"],[3,"Senior"]].map(([v,l]) => `<button type="button" class="chip noimg" data-v="${v}" aria-pressed="${(m.level||3)===v}">${l}</button>`).join("")}</div></div>
+      <button class="btn accent block" type="submit">${isNew ? "Add to the family" : "Save"}</button>
+      ${!isNew && m.id!==st.me ? `<button class="btn ghost block" type="button" data-act="member-remove" data-id="${m.id}">${ic("trash")} Remove ${esc(m.label)} from the family</button>` : ""}
+    </form>`, async () => {
+      const name = $("#mb-name").value.trim(); if(!name) return;
+      const age = parseInt($("#mb-age").value, 10), pin = $("#mb-pin").value.trim();
+      if(pin && !/^\d{4}$/.test(pin)){ toast("PINs are 4 numbers"); return; }
+      const body = {id: isNew ? undefined : m.id, name, label: $("#mb-label").value.trim() || name, parent: chipVals("mb-role")[0]==="parent", color: chipVals("mb-color")[0] || m.color,
+        age: age > 0 ? age : null, level: +chipVals("mb-level")[0] || null, pin};
+      if(memberPhoto !== undefined) body.photo = memberPhoto;
+      try{ await api("/api/members/save", body); await loadFamily(); toast(isNew ? `${body.label} added` : "Saved"); familySheet(); }
+      catch(e){ if(!e.quiet) toast(e.msg || "That didn't save. Try again."); }
+    });
+}
+const photoPreview = (photo, name) => photo ? `<img class="avatar lg" src="${esc(photo)}" alt="">` : `<span class="avatar ini lg">${esc((name||"?").charAt(0).toUpperCase())}</span>`;
+// Shrinks a picked photo to a small square so it's quick to load on every phone.
+function shrinkPhoto(file){
+  return new Promise((resolve, reject) => {
+    const img = new Image(), url = URL.createObjectURL(file);
+    img.onload = () => {
+      const n = Math.min(img.naturalWidth, img.naturalHeight), size = 256, c = document.createElement("canvas");
+      c.width = c.height = size;
+      c.getContext("2d").drawImage(img, (img.naturalWidth - n) / 2, (img.naturalHeight - n) / 2, n, n, 0, 0, size, size);
+      URL.revokeObjectURL(url); resolve(c.toDataURL("image/jpeg", 0.82));
+    };
+    img.onerror = () => { URL.revokeObjectURL(url); reject(new Error("bad image")); };
+    img.src = url;
+  });
 }
 function quickAddSheet(){
   openSheet(`<h2>Add something</h2><div class="game-grid" style="margin-top:14px">
@@ -1156,10 +1315,21 @@ document.addEventListener("click", async ev => {
     case "cancel-unlock": st.unlockFor = null; render(); break;
     case "unlock": { const member = st.unlockFor, pin = $("#pin").value; t.disabled = true;
       try{ const j = await api("/api/login", {member, pin}); token = j.token; ls.set("evans-token", token); st.me = member; st.unlockFor = null; ls.set("evans-me", member); ver = 0; go("home"); sync(); }
-      catch(e){ t.disabled = false; toast(e.msg || "Couldn't reach the family app. Check your connection."); $("#pin").value = ""; $("#pin").focus(); }
+      catch(e){ t.disabled = false; if(e.quiet) break; toast(e.msg || "Couldn't reach the family app. Check your connection."); $("#pin").value = ""; $("#pin").focus(); }
       break; }
     case "profile": profileSheet(); break;
-    case "switch": await pushOff(); logout(); loadPins(); break;
+    case "switch": await pushOff(); logout(); loadFamily(); break;
+    case "fam-retry": st.famErr = false; render(); if(await loadFamily()) sync(); break;
+    case "fam-logout": if(!confirm("Log this phone out of the family? You'll need the family email and password to log back in.")) break; await pushOff(); leaveFamily(); break;
+    case "invite-cancel": st.invite = null; history.replaceState(null, "", "/"); render(); break;
+    case "family-settings": familySheet(); break;
+    case "member-add": memberSheet(null); break;
+    case "member-edit": if(M[id]) memberSheet(M[id]); break;
+    case "member-remove": { const m = M[id]; if(!m || !confirm(`Remove ${m.label} from the family? They won't be able to log in any more.`)) break;
+      try{ await api("/api/members/remove", {id}); await loadFamily(); toast(`${m.label} removed`); familySheet(); }catch(e){ if(!e.quiet) toast(e.msg || "Couldn't remove them. Try again."); } break; }
+    case "photo-remove": memberPhoto = ""; $("#mb-av").innerHTML = photoPreview("", $("#mb-name").value); t.hidden = true; break;
+    case "invite-new": t.disabled = true; try{ const {code} = await api("/api/invites/create", {}); await loadInvites(); await shareInvite(code); }catch(e){ if(!e.quiet) toast(e.msg || "Couldn't make an invite. Try again."); } t.disabled = false; break;
+    case "invite-copy": shareInvite(d.v); break;
     case "notif-on": t.disabled = true; try{ if(await pushOn(Object.fromEntries(NOTIF_KINDS.map(([k]) => [k, true])))){ toast("Notifications on"); api("/api/push/test", {}).catch(() => {}); } }catch(e){ if(!e.quiet) toast("Couldn't turn on notifications. Try again."); } fillNotifBox(); break;
     case "notif-off": await pushOff(); toast("Notifications off on this phone"); fillNotifBox(); break;
     case "notif-test": { const sub = await currentSub().catch(() => null); api("/api/push/test", {endpoint: sub && sub.endpoint}).then(() => toast("Sent. It should pop up in a moment.")).catch(() => toast("Couldn't send a test")); break; }
@@ -1230,7 +1400,11 @@ document.addEventListener("keydown", e => {
   if(e.key==="Enter" && e.target.id==="pin"){ e.preventDefault(); $('[data-act="unlock"]').click(); }
 });
 
-document.addEventListener("change", e => {
+document.addEventListener("change", async e => {
+  if(e.target.id==="mb-photo" && e.target.files[0]){
+    try{ memberPhoto = await shrinkPhoto(e.target.files[0]); $("#mb-av").innerHTML = photoPreview(memberPhoto); const del = $("#mb-photo-del"); if(del) del.hidden = false; }
+    catch{ toast("That photo didn't work. Try a different one."); }
+  }
   if(e.target.id==="voice-pick"){ ls.set("evans-voice", e.target.value); if(st.game && st.game.kind==="spelling") say(st.game.words[st.game.i]); }
 });
 document.addEventListener("submit", e => {
@@ -1238,6 +1412,25 @@ document.addEventListener("submit", e => {
 }, true);
 document.addEventListener("submit", async e => {
   e.preventDefault();
+  if(e.target.id==="fam-login"){
+    const b = e.target.querySelector("button[type=submit]"); b.disabled = true;
+    try{ const j = await api("/api/family/login", {email: $("#fl-email").value, password: $("#fl-pass").value}); famToken = j.device; ls.set("fam-token", famToken); if(!(await loadFamily())) toast("Couldn't load your family. Try again."); render(); }
+    catch(err){ b.disabled = false; toast(err.msg || "Couldn't reach Family App. Check your connection."); }
+    return;
+  }
+  if(e.target.id==="signup"){
+    const pin = $("#su-pin").value.trim(); if(!/^\d{4}$/.test(pin)){ toast("Your PIN needs to be 4 numbers"); return; }
+    const b = e.target.querySelector("button[type=submit]"); b.disabled = true;
+    try{
+      const j = await api("/api/family/signup", {invite: st.invite.code, family: $("#su-fam").value, email: $("#su-email").value, password: $("#su-pass").value, pin,
+        you: {name: $("#su-name").value, label: $("#su-label").value.trim() || $("#su-name").value}});
+      await pushOff();
+      famToken = j.device; token = j.token; st.me = j.member; ls.set("fam-token", famToken); ls.set("evans-token", token); ls.set("evans-me", j.member);
+      st.invite = null; ver = 0; COLLS.forEach(c => S[c] = []); history.replaceState(null, "", "/");
+      await loadFamily(); go("home"); sync(); toast("Your family is set up");
+    }catch(err){ b.disabled = false; toast(err.msg || "Couldn't reach Family App. Check your connection."); }
+    return;
+  }
   if(e.target.id==="composer"){
     const inp = $("#msg-text"); const text = inp.value.trim(); if(!text) return;
     const to = st.thread==="family" ? "family" : st.thread.split("-").find(x => x!==st.me) || st.me;
@@ -1257,9 +1450,14 @@ document.addEventListener("submit", async e => {
 });
 
 if(canSpeak()){ loadVoices(); try{ speechSynthesis.onvoiceschanged = loadVoices; }catch{} }
+const invite = new URLSearchParams(location.search).get("invite");
+if(invite){
+  st.invite = {code: invite};
+  fetch("/api/invite?code=" + encodeURIComponent(invite)).then(r => r.json().then(j => { st.invite.ok = r.ok; if(!r.ok) st.invite.err = j.error || "That invite link isn't right."; }))
+    .catch(() => { st.invite.err = "Couldn't reach Family App. Check your connection and open the link again."; }).finally(render);
+}
 render();
-initStore();
-if(location.search){ openFromUrl(location.href); history.replaceState(null, "", "/"); }
+initStore().then(() => { if(location.search && !invite){ openFromUrl(location.href); history.replaceState(null, "", "/"); } });
 })();
 </script>
 </body>

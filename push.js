@@ -3,7 +3,6 @@
 "use strict";
 const webpush = require("web-push");
 
-const LABEL = { brad: "Dad", elle: "Mum", ruby: "Ruby", ari: "Ari", lola: "Lola" };
 const KINDS = ["msgs", "cal", "jobs"];
 const REMIND_MINUTES = 30;   // reminder this long before an event with a start time
 const ALL_DAY_REMINDER = "07:00"; // events with no start time get a morning heads-up
@@ -42,9 +41,8 @@ function localParts(ms, tz) {
 }
 const validTz = tz => { try { new Intl.DateTimeFormat("en", { timeZone: tz }); return typeof tz === "string" && tz.length < 64; } catch { return false; } };
 
-module.exports = function makePush(store, MEMBERS) {
-  const parents = Object.keys(MEMBERS).filter(m => MEMBERS[m]);
-  const kids = Object.keys(MEMBERS).filter(m => !MEMBERS[m]);
+// `family(id)` gives a family's people ({list, by}), so messages only ever go to phones in the same family.
+module.exports = function makePush(store, family) {
   let publicKey = "";
 
   async function init() {
@@ -62,54 +60,59 @@ module.exports = function makePush(store, MEMBERS) {
     catch (e) { if (e.statusCode === 404 || e.statusCode === 410) await store.dropPush(sub.endpoint); else console.error("push send", e.statusCode || e.message); }
   }
 
-  // Send to everyone in `people` who has this kind of notification turned on.
-  async function notify(people, kind, payload) {
+  // Send to everyone in `people` in this family who has this kind of notification turned on.
+  async function notify(fam, people, kind, payload) {
     const want = new Set(people);
     if (!want.size) return;
-    const subs = (await store.pushSubs()).filter(s => want.has(s.member) && s.prefs && s.prefs[kind]);
+    const subs = (await store.pushSubs()).filter(s => s.fam === fam && want.has(s.member) && s.prefs && s.prefs[kind]);
     await Promise.all(subs.map(s => deliver(s, payload)));
   }
 
-  async function onWrite(me, op, coll, before, after) {
-    const not = list => [...new Set(list)].filter(m => m && m !== me && m in MEMBERS);
-    const L = m => LABEL[m] || m;
+  async function onWrite(fam, me, op, coll, before, after) {
+    const F = await family(fam);
+    if (!F) return;
+    const everyone = F.list.map(m => m.id), parents = F.list.filter(m => m.parent).map(m => m.id), kids = F.list.filter(m => !m.parent).map(m => m.id);
+    const isParent = m => !!(F.by[m] && F.by[m].parent);
+    const not = list => [...new Set(list)].filter(m => m && m !== me && F.by[m]);
+    const L = m => F.by[m] ? F.by[m].label : "Someone";
+    const notify_ = notify.bind(null, fam);
     if (coll === "messages" && !before && after) {
-      const fam = after.to === "family";
-      const to = fam ? Object.keys(MEMBERS) : [after.to];
-      const thread = fam ? "family" : [after.from, after.to].sort().join("-");
-      return notify(not(to), "msgs", { title: fam ? `${L(after.from)} in Family chat` : L(after.from), body: clip(after.text, 160), tag: "chat-" + thread, url: `/?tab=chat&thread=${thread}` });
+      const all = after.to === "family";
+      const to = all ? everyone : [after.to];
+      const thread = all ? "family" : [after.from, after.to].sort().join("-");
+      return notify_(not(to), "msgs", { title: all ? `${L(after.from)} in Family chat` : L(after.from), body: clip(after.text, 160), tag: "chat-" + thread, url: `/?tab=chat&thread=${thread}` });
     }
     if (coll === "jobs" && after) {
       const job = `${after.title} · ${after.pts} points`;
       if (!before) {
         const to = [];
         if (after.assignee && after.assignee !== "anyone") to.push(after.assignee);
-        else if (MEMBERS[me]) to.push(...kids);
-        if (!MEMBERS[me]) to.push(...parents);
+        else if (isParent(me)) to.push(...kids);
+        if (!isParent(me)) to.push(...parents);
         const title = after.assignee === me ? `${L(me)} added a job` : after.assignee && after.assignee !== "anyone" ? `New job for ${L(after.assignee)}` : "New job up for grabs";
-        return notify(not(to), "jobs", { title, body: job, tag: "job-" + after.id, url: "/?tab=jobs" });
+        return notify_(not(to), "jobs", { title, body: job, tag: "job-" + after.id, url: "/?tab=jobs" });
       }
       if (before.status !== "pending" && after.status === "pending")
-        return notify(not(parents), "jobs", { title: `${L(after.doneBy)} finished a job`, body: `${after.title}. Tap to check it and approve ${after.pts} points.`, tag: "job-" + after.id, url: "/?tab=jobs" });
+        return notify_(not(parents), "jobs", { title: `${L(after.doneBy)} finished a job`, body: `${after.title}. Tap to check it and approve ${after.pts} points.`, tag: "job-" + after.id, url: "/?tab=jobs" });
       if (before.status !== "done" && after.status === "done")
-        return notify(not([after.doneBy]), "jobs", { title: `+${after.pts} points!`, body: `${L(after.approvedBy)} approved "${after.title}"`, tag: "job-" + after.id, url: "/?tab=jobs" });
+        return notify_(not([after.doneBy]), "jobs", { title: `+${after.pts} points!`, body: `${L(after.approvedBy)} approved "${after.title}"`, tag: "job-" + after.id, url: "/?tab=jobs" });
       if (before.status === "pending" && after.status === "open")
-        return notify(not([before.doneBy]), "jobs", { title: "Not quite done yet", body: `${L(me)} sent back "${after.title}"`, tag: "job-" + after.id, url: "/?tab=jobs" });
+        return notify_(not([before.doneBy]), "jobs", { title: "Not quite done yet", body: `${L(me)} sent back "${after.title}"`, tag: "job-" + after.id, url: "/?tab=jobs" });
       return;
     }
     if (coll === "ledger" && after) {
       if (!before && after.kind === "bonus")
-        return notify(not([after.who]), "jobs", { title: after.pts > 0 ? `${L(me)} gave you ${after.pts} points` : `${L(me)} took off ${-after.pts} points`, body: clip(after.reason, 120), tag: "pts-" + after.id, url: "/?tab=jobs" });
+        return notify_(not([after.who]), "jobs", { title: after.pts > 0 ? `${L(me)} gave you ${after.pts} points` : `${L(me)} took off ${-after.pts} points`, body: clip(after.reason, 120), tag: "pts-" + after.id, url: "/?tab=jobs" });
       if (!before && after.kind === "reward")
-        return notify(not(parents), "jobs", { title: `${L(after.who)} cashed in a reward`, body: `${clip(after.reason, 80)} · ${-after.pts} points`, tag: "rw-" + after.id, url: "/?tab=jobs&seg=rewards" });
+        return notify_(not(parents), "jobs", { title: `${L(after.who)} cashed in a reward`, body: `${clip(after.reason, 80)} · ${-after.pts} points`, tag: "rw-" + after.id, url: "/?tab=jobs&seg=rewards" });
       if (before && before.status === "pending" && after.status === "given")
-        return notify(not([after.who]), "jobs", { title: "Reward sorted", body: `${L(after.givenBy || me)} says "${clip(after.reason, 80)}" is yours`, tag: "rw-" + after.id, url: "/?tab=jobs&seg=rewards" });
+        return notify_(not([after.who]), "jobs", { title: "Reward sorted", body: `${L(after.givenBy || me)} says "${clip(after.reason, 80)}" is yours`, tag: "rw-" + after.id, url: "/?tab=jobs&seg=rewards" });
       return;
     }
     if (coll === "events" && !before && after) {
-      const ppl = after.who && after.who.length ? after.who : Object.keys(MEMBERS);
+      const ppl = after.who && after.who.length ? after.who : everyone;
       const when = `${niceDate(after.date)}${after.time ? ", " + niceTime(after.time) : ""}${after.repeat ? " (repeats)" : ""}`;
-      return notify(not(ppl), "cal", { title: `${L(me)} added to the calendar`, body: `${clip(after.title, 80)} · ${when}`, tag: "ev-" + after.id, url: `/?tab=cal&day=${after.date}` });
+      return notify_(not(ppl), "cal", { title: `${L(me)} added to the calendar`, body: `${clip(after.title, 80)} · ${when}`, tag: "ev-" + after.id, url: `/?tab=cal&day=${after.date}` });
     }
   }
 
@@ -118,13 +121,19 @@ module.exports = function makePush(store, MEMBERS) {
   async function reminders(fromMin, toMin) {
     const subs = (await store.pushSubs()).filter(s => s.prefs && s.prefs.cal);
     if (!subs.length) return;
-    const events = (await store.all()).filter(r => r.coll === "events").map(r => ({ id: r.id, ...r.data }));
+    const byFam = new Map();
+    for (const fam of new Set(subs.map(s => s.fam))) {
+      const F = await family(fam);
+      if (F) byFam.set(fam, { everyone: F.list.map(m => m.id), events: (await store.all(fam)).filter(r => r.coll === "events").map(r => ({ id: r.id, ...r.data })) });
+    }
     for (let m = fromMin + 1; m <= toMin; m++) {
       for (const s of subs) {
+        const F = byFam.get(s.fam);
+        if (!F) continue;
         const soon = localParts((m + REMIND_MINUTES) * 60000, s.tz);
         const now = localParts(m * 60000, s.tz);
-        for (const e of events) {
-          const ppl = e.who && e.who.length ? e.who : Object.keys(MEMBERS);
+        for (const e of F.events) {
+          const ppl = e.who && e.who.length ? e.who : F.everyone;
           if (!ppl.includes(s.member)) continue;
           let payload = null, key = "";
           if (e.time && e.time === soon.time && occursOn(e, soon.date)) {
@@ -141,7 +150,8 @@ module.exports = function makePush(store, MEMBERS) {
     if (sent.size > 5000) sent.clear();
   }
 
-  async function route(req, res, url, me, readBody, send) {
+  async function route(req, res, url, who, readBody, send) {
+    const { fam, member: me, f } = who;
     if (url.pathname === "/api/push/key") return send(res, 200, { key: publicKey });
     if (req.method !== "POST") return send(res, 405, { error: "Use POST" });
     const body = await readBody(req);
@@ -150,11 +160,11 @@ module.exports = function makePush(store, MEMBERS) {
       if (typeof sub.endpoint !== "string" || !/^https:\/\//.test(sub.endpoint) || sub.endpoint.length > 1000 || !sub.keys || typeof sub.keys.p256dh !== "string" || typeof sub.keys.auth !== "string")
         return send(res, 400, { error: "Bad subscription" });
       const prefs = Object.fromEntries(KINDS.map(k => [k, !body.prefs || body.prefs[k] !== false]));
-      await store.savePush({ endpoint: sub.endpoint, member: me, sub: { endpoint: sub.endpoint, keys: { p256dh: sub.keys.p256dh, auth: sub.keys.auth } }, prefs, tz: validTz(body.tz) ? body.tz : "UTC" });
+      await store.savePush({ endpoint: sub.endpoint, fam, member: me, sub: { endpoint: sub.endpoint, keys: { p256dh: sub.keys.p256dh, auth: sub.keys.auth } }, prefs, tz: validTz(body.tz) ? body.tz : "UTC" });
       return send(res, 200, { ok: true, prefs });
     }
     if (url.pathname === "/api/push/status") {
-      const s = (await store.pushSubs()).find(x => x.endpoint === body.endpoint && x.member === me);
+      const s = (await store.pushSubs()).find(x => x.endpoint === body.endpoint && x.fam === fam && x.member === me);
       return send(res, 200, s ? { on: true, prefs: s.prefs } : { on: false });
     }
     if (url.pathname === "/api/push/unsubscribe") {
@@ -162,8 +172,8 @@ module.exports = function makePush(store, MEMBERS) {
       return send(res, 200, { ok: true });
     }
     if (url.pathname === "/api/push/test") {
-      const subs = (await store.pushSubs()).filter(s => s.member === me && (!body.endpoint || s.endpoint === body.endpoint));
-      await Promise.all(subs.map(s => deliver(s, { title: "Notifications are on", body: `Nice one ${LABEL[me]}, this phone will now get Family App updates.`, tag: "test", url: "/" })));
+      const subs = (await store.pushSubs()).filter(s => s.fam === fam && s.member === me && (!body.endpoint || s.endpoint === body.endpoint));
+      await Promise.all(subs.map(s => deliver(s, { title: "Notifications are on", body: `Nice one ${f.by[me].label}, this phone will now get Family App updates.`, tag: "test", url: "/" })));
       return send(res, 200, { ok: true });
     }
     return send(res, 404, { error: "Not found" });
