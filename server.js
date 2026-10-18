@@ -527,6 +527,16 @@ const server = http.createServer(async (req, res) => {
   }
 });
 
+// FIRST_FAMILY_LOGIN ("email|scrypt$salt$hash") gives the first family its login if it doesn't have one yet.
+// Only the password's hash is ever stored, and a password set later in the app always wins.
+async function firstFamilyLogin() {
+  const [email, pass] = String(process.env.FIRST_FAMILY_LOGIN || "").split("|");
+  const f = await store.getFamily(FIRST_FAMILY.id);
+  if (!f || f.pass || !cleanEmail(email) || !/^scrypt\$[0-9a-f]+\$[0-9a-f]+$/.test(pass || "")) return;
+  await store.updateFamily(FIRST_FAMILY.id, { email: cleanEmail(email), pass });
+  console.log("Set the first family's login");
+}
+
 const push = require("./push")(store, family);
-store.init().then(() => push.init()).then(() => server.listen(PORT, () => console.log(`Family App on :${PORT} (${process.env.DATABASE_URL ? "postgres" : "local file"})`)))
+store.init().then(firstFamilyLogin).then(() => push.init()).then(() => server.listen(PORT, () => console.log(`Family App on :${PORT} (${process.env.DATABASE_URL ? "postgres" : "local file"})`)))
   .catch(e => { console.error("Could not start", e); process.exit(1); });
