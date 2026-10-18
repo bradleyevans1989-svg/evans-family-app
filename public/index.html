@@ -183,6 +183,7 @@ textarea.input{min-height:72px;resize:vertical}
 .bubble.them{border-bottom-left-radius:6px}
 .mrow{display:flex;gap:8px;align-items:flex-end}
 .mrow.me{justify-content:flex-end}
+.bubble[data-act]{cursor:pointer}
 .mmeta{font-size:11px;color:var(--muted);margin:0 6px}
 .composer{position:fixed;left:0;right:0;bottom:0;z-index:25;padding:10px 16px calc(12px + env(safe-area-inset-bottom,0px));background:linear-gradient(transparent,var(--bg) 30%)}
 .composer form{max-width:448px;margin:0 auto;display:flex;gap:8px}
@@ -723,7 +724,25 @@ function msgsHtml(key){
   const ms = threadMsgs(key);
   if(!ms.length) return `<div class="empty">No messages yet. Start the conversation.</div>`;
   return ms.map((m,i) => { const mine = m.from===st.me; const prev = ms[i-1]; const showName = !mine && key==="family" && (!prev || prev.from!==m.from);
-    return `<div class="mrow ${mine?"me":""}">${!mine?(showName||key!=="family"?av(m.from,"sm"):'<span style="width:28px;flex:none"></span>'):""}<div style="display:flex;flex-direction:column;${mine?"align-items:flex-end":""};max-width:80%">${showName?`<span class="mmeta">${esc(who(m.from))}</span>`:""}<div class="bubble ${mine?"me":"them"}">${esc(m.text)}</div><span class="mmeta">${ago(m.ts)}</span></div></div>`; }).join("");
+    return `<div class="mrow ${mine?"me":""}">${!mine?(showName||key!=="family"?av(m.from,"sm"):'<span style="width:28px;flex:none"></span>'):""}<div style="display:flex;flex-direction:column;${mine?"align-items:flex-end":""};max-width:80%">${showName?`<span class="mmeta">${esc(who(m.from))}</span>`:""}<div class="bubble ${mine?"me":"them"}" ${mine||isParent()?`role="button" tabindex="0" data-act="msg-opts" data-id="${m.id}" aria-label="Message options"`:""}>${esc(m.text)}</div><span class="mmeta">${m.edited?"edited · ":""}${ago(m.ts)}</span></div></div>`; }).join("");
+}
+function msgOptsSheet(m){
+  const mine = m.from===st.me;
+  openSheet(`<h2>${mine ? "Your message" : `${esc(who(m.from))}'s message`}</h2>
+    <p class="bubble ${mine?"me":"them"}" style="margin-top:12px">${esc(m.text)}</p>
+    <div class="stack" style="margin-top:14px">
+      ${mine ? `<button class="btn block" data-act="msg-edit" data-id="${m.id}">Edit</button>` : ""}
+      <button class="btn ghost block" data-act="msg-del" data-id="${m.id}">${ic("trash")} Delete for everyone</button>
+    </div>`, null);
+}
+function msgEditSheet(m){
+  openSheet(`<h2>Edit message</h2><form id="f" class="stack" style="margin-top:12px">
+    <textarea class="input" id="me-text" maxlength="1000" required aria-label="Message">${esc(m.text)}</textarea>
+    <button class="btn accent block" type="submit">Save</button></form>`, async () => {
+      const text = $("#me-text").value.trim(); if(!text) return;
+      if(text===m.text){ closeSheet(); return; }
+      if(await store.update("messages", m.id, {text, edited: Date.now()})){ closeSheet(); toast("Message edited"); }
+    });
 }
 function threadView(key){
   const title = key==="family" ? "Evans Family" : who(key.split("-").find(x => x!==st.me));
@@ -1175,6 +1194,9 @@ document.addEventListener("click", async ev => {
     case "back-play": st.play = null; render(); break;
     case "rut-open": st.tab = "home"; st.rut = {...(st.rut||{text:""}), open: true}; render(); window.scrollTo(0,0); break;
     case "rut-back": if(st.rut) st.rut.open = false; render(); window.scrollTo(0,0); break;
+    case "msg-opts": { const m = S.messages.find(x => x.id===id); if(m && (m.from===st.me || isParent())) msgOptsSheet(m); break; }
+    case "msg-edit": { const m = S.messages.find(x => x.id===id); if(m && m.from===st.me) msgEditSheet(m); break; }
+    case "msg-del": { const m = S.messages.find(x => x.id===id); if(m && (m.from===st.me || isParent()) && await store.del("messages", id)){ closeSheet(); toast("Message deleted"); } break; }
     case "rut-ex": rutRun(d.v); break;
     case "rut-ex-more": st.rutEx = shuffle(RUT_EXAMPLES).slice(0, 6); render(); break;
     case "rut-more": if(st.rut) rutRun(st.rut.text); break;
