@@ -335,7 +335,7 @@ async function api(path, body){
 }
 function logout(){ token = null; ls.set("evans-token", null); st.me = null; ls.set("evans-me", null); ver = 0; COLLS.forEach(c => S[c] = []); closeSheet(); clearGame(); render(); }
 // Logs this phone out of the family completely, so it needs the family email and password again.
-function leaveFamily(){ famToken = null; ls.set("fam-token", null); ls.set("fam-cache", null); FAMILY = null; FAM = []; M = {}; logout(); }
+function leaveFamily(){ famToken = null; ls.set("fam-token", null); ls.set("fam-cache", null); FAMILY = null; FAM = []; M = {}; HERO = ""; logout(); }
 function applyLocal(op, c, id, data){
   const i = S[c].findIndex(x => x.id===id);
   if(op==="delete"){ if(i>=0) S[c].splice(i,1); }
@@ -461,14 +461,15 @@ function viewWelcome(){
       </div></div>`;
   }
   return `<div class="welcome">
-    ${heroHtml("Welcome home", famTitle())}
+    ${heroHtml("Welcome home", famTitle(), HERO)}
     <h2>Who's using this phone?</h2>
     <div class="pick">${FAM.map(m => `<button data-pick="${m.id}">${av(m.id,"lg")}<span>${esc(m.label)}</span><small>${esc([m.label!==m.name ? m.name : "", m.age || ""].filter(Boolean).join(" · "))}</small></button>`).join("")}</div>
     <p class="note">Your phone remembers who you are. Tap your photo at the top to switch.</p>
   </div>`;
 }
-const heroHtml = (kicker, title) => HERO
-  ? `<div class="hero"><img src="${esc(HERO)}" alt="${esc(title)}"><div class="cap"><p style="font-weight:700;opacity:.9">${esc(kicker)}</p><h1>${esc(title)}</h1></div></div>`
+// Only the family's own picker shows their photo; login and sign-up screens are the same for everyone.
+const heroHtml = (kicker, title, photo) => photo
+  ? `<div class="hero"><img src="${esc(photo)}" alt="${esc(title)}"><div class="cap"><p style="font-weight:700;opacity:.9">${esc(kicker)}</p><h1>${esc(title)}</h1></div></div>`
   : `<div class="hero plain"><div class="cap"><p style="font-weight:700;opacity:.8">${esc(kicker)}</p><h1>${esc(title)}</h1></div></div>`;
 function viewLoading(){
   return st.famErr ? `<div class="welcome"><div class="card stack" style="margin-top:40px;text-align:center"><h2>Can't reach the family app</h2><p class="muted">Check your connection and try again.</p><button class="btn accent" data-act="fam-retry">Try again</button></div></div>`
@@ -1122,7 +1123,7 @@ function profileSheet(){
       <div class="stack card flat" id="notif-box"><h3>${ic("bell")} Notifications</h3><p class="small muted">Checking…</p></div>
       <form id="f" class="stack card flat"><h3>${m.parent ? "Change or reset a PIN" : "Change my PIN"}</h3>${m.parent ? peopleChips("pin-who", [m.id], false) : ""}<input class="input" id="new-pin" inputmode="numeric" maxlength="4" pattern="[0-9]{4}" placeholder="New 4-digit PIN" required aria-label="New PIN"><button class="btn small" type="submit">Save PIN</button></form>
       <p class="note">Everything here is shared with the family.</p>
-      ${m.parent ? `<button class="link small" type="button" data-act="fam-logout">Log this phone out of the family</button>` : ""}
+      ${m.parent && FAMILY.hasLogin ? `<button class="link small" type="button" data-act="fam-logout">Log this phone out of the family</button>` : ""}
     </div>`, async () => {
       const p = $("#new-pin").value.trim(); if(!/^\d{4}$/.test(p)){ toast("Use 4 numbers"); return; }
       const whoFor = m.parent ? (chipVals("pin-who")[0] || m.id) : m.id;
