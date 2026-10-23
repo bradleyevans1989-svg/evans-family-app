@@ -243,7 +243,8 @@ function boom() {
   beep(90, 0.3, 'square', 0.08, -50);
 }
 const SFX = {
-  eat: c => beep(660 + Math.min(c, 8) * 70, 0.05),
+  // gulp: two quick downward 'glugs', pitched up a little as the combo climbs
+  eat: c => { const k = 1 + Math.min(c, 8) * 0.06; beep(340 * k, 0.09, 'sine', 0.16, -200 * k); beep(260 * k, 0.1, 'sine', 0.14, -150 * k, 0.08); beep(880 + Math.min(c, 8) * 60, 0.03, 'square', 0.02, 0, 0.02); },
   power: () => { beep(523, 0.06); beep(784, 0.06, 'square', 0.05, 0, 0.06); beep(1046, 0.08, 'square', 0.05, 0, 0.12); },
   portal: () => beep(300, 0.18, 'sawtooth', 0.04, 900),
   die: () => { beep(440, 0.12); beep(330, 0.12, 'square', 0.05, 0, 0.12); beep(220, 0.3, 'square', 0.05, -100, 0.24); },
@@ -777,11 +778,16 @@ function draw() {
   if (S.flash > 0) { g.fillStyle = C.ink; g.globalAlpha = Math.min(0.85, S.flash / 200); g.fillRect(0, 0, W, W); g.globalAlpha = 1; }
   // banner
   if (S.banner && now < S.banner.until) {
-    const b = S.banner, h = cell * 3.2, y = W * 0.38;
+    // slim see-through strip along the top edge, so the board underneath stays visible and playable
+    const b = S.banner, h = cell * (b.sub ? 2.3 : 1.6), left = b.until - now;
+    const fade = Math.min(1, left / 300);
     g.textAlign = 'center'; g.textBaseline = 'middle';
-    g.fillStyle = typeof b.bad === 'string' ? b.bad : b.bad ? C.danger : C.ink; g.fillRect(0, y - h / 2, W, h + (b.sub ? cell * 1.2 : 0));
-    g.fillStyle = C.lcd; g.font = `700 ${cell * 1.5}px Silkscreen, monospace`; g.fillText(b.text, W / 2, y);
-    if (b.sub) { g.font = `400 ${cell * 0.75}px Silkscreen, monospace`; g.fillText(b.sub.toUpperCase(), W / 2, y + cell * 1.45); }
+    g.globalAlpha = 0.72 * fade;
+    g.fillStyle = typeof b.bad === 'string' ? b.bad : b.bad ? C.danger : C.ink; g.fillRect(0, 0, W, h);
+    g.globalAlpha = fade;
+    g.fillStyle = C.lcd; g.font = `700 ${cell * 0.95}px Silkscreen, monospace`; g.fillText(b.text, W / 2, cell * 0.8);
+    if (b.sub) { g.font = `400 ${cell * 0.55}px Silkscreen, monospace`; g.fillText(b.sub.toUpperCase(), W / 2, cell * 1.7); }
+    g.globalAlpha = 1;
   }
   // combo meter
   if (S.combo > 1 && now - S.lastEat < 2600) {
