@@ -1,4 +1,4 @@
-// Family App server: serves the app and keeps each family's shared data in Postgres.
+// Family Hub server: serves the app and keeps each family's shared data in Postgres.
 // Every family has one email and password. A phone logs in to its family once, then each person picks their name and PIN.
 // New families can only join through an invite link made by a parent in the owner family.
 // Without DATABASE_URL it falls back to a local JSON file, which is handy for trying it on a laptop.
@@ -441,6 +441,14 @@ async function api(req, res, url) {
     return send(res, 200, { ok: true });
   }
   if (p.startsWith("/api/push/")) return push.route(req, res, url, who, readBody, send);
+  if (req.method === "POST" && p === "/api/me/photo") { // anyone can change their own photo
+    const b = await readBody(req);
+    const m = memberFrom({ ...meM, photo: b.photo }, meM);
+    if (m.error) return send(res, 400, { error: m.error });
+    await store.saveMember(fam, { ...meM, photo: m.photo });
+    forget(fam);
+    return send(res, 200, { ok: true });
+  }
 
   // ---- parents only ----
   if (!meM.parent) return send(res, 403, { error: "Only Mum or Dad can do that" });
@@ -538,5 +546,5 @@ async function firstFamilyLogin() {
 }
 
 const push = require("./push")(store, family);
-store.init().then(firstFamilyLogin).then(() => push.init()).then(() => server.listen(PORT, () => console.log(`Family App on :${PORT} (${process.env.DATABASE_URL ? "postgres" : "local file"})`)))
+store.init().then(firstFamilyLogin).then(() => push.init()).then(() => server.listen(PORT, () => console.log(`Family Hub on :${PORT} (${process.env.DATABASE_URL ? "postgres" : "local file"})`)))
   .catch(e => { console.error("Could not start", e); process.exit(1); });

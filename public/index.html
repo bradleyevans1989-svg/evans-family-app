@@ -3,15 +3,15 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Family App</title>
-<link rel="manifest" href="/manifest.webmanifest?v=2">
+<title>Family Hub</title>
+<link rel="manifest" href="/manifest.webmanifest?v=3">
 <link rel="apple-touch-icon" href="/icon-180.png?v=2">
 <link rel="icon" href="/favicon.png?v=2">
 <meta name="theme-color" content="#FBEFE8">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="Family App">
+<meta name="apple-mobile-web-app-title" content="Family Hub">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Nunito:wght@400;600;700;800&display=swap">
 <style>
@@ -477,7 +477,7 @@ function viewLoading(){
 }
 function viewFamilyLogin(){
   return `<div class="welcome">
-    ${heroHtml("Welcome to", "Family App")}
+    ${heroHtml("Welcome to", "Family Hub")}
     <form id="fam-login" class="card stack">
       <h2>Log in to your family</h2>
       <p class="small muted">Use your family's email and password. Each phone only needs this once, then everyone just picks their name.</p>
@@ -485,15 +485,15 @@ function viewFamilyLogin(){
       <label class="f">Password<input class="input" id="fl-pass" type="password" autocomplete="current-password" required maxlength="200"></label>
       <button class="btn accent block" type="submit">Log in</button>
     </form>
-    <p class="note">Family App is invite only. If someone sent you an invite link, open it to set up your family. Forgot the password? A parent who's still logged in can change it in Family settings.</p>
+    <p class="note">Family Hub is invite only. If someone sent you an invite link, open it to set up your family. Forgot the password? A parent who's still logged in can change it in Family settings.</p>
   </div>`;
 }
 function viewSignup(){
   const iv = st.invite;
-  if(iv.err) return `<div class="welcome">${heroHtml("Welcome to", "Family App")}<div class="card stack"><h2>That invite didn't work</h2><p>${esc(iv.err)}</p><button class="btn ghost" data-act="invite-cancel">Back</button></div></div>`;
+  if(iv.err) return `<div class="welcome">${heroHtml("Welcome to", "Family Hub")}<div class="card stack"><h2>That invite didn't work</h2><p>${esc(iv.err)}</p><button class="btn ghost" data-act="invite-cancel">Back</button></div></div>`;
   if(!iv.ok) return viewLoading();
   return `<div class="welcome">
-    ${heroHtml("You're invited to", "Family App")}
+    ${heroHtml("You're invited to", "Family Hub")}
     <form id="signup" class="card stack">
       <h2>Set up your family</h2>
       <p class="small muted">Your family gets its own private calendar, jobs, chat and games. Nobody else can see it.</p>
@@ -1115,7 +1115,7 @@ const chipVals = name => [...document.querySelectorAll(`[data-chips="${name}"] [
 
 function profileSheet(){
   const m = me();
-  openSheet(`<div class="row">${av(m.id,"lg")}<div class="grow"><h2>${esc(m.label)}</h2><p class="muted small">${m.parent?esc(m.name)+" · ":""}${balance(m.id)} points</p></div></div>
+  openSheet(`<div class="row"><label style="position:relative;cursor:pointer" aria-label="Change my photo">${av(m.id,"lg")}<input type="file" accept="image/*" id="my-photo" hidden></label><div class="grow"><h2>${esc(m.label)}</h2><p class="muted small">${m.parent?esc(m.name)+" · ":""}${balance(m.id)} points</p><label class="link small" style="cursor:pointer">Change my photo<input type="file" accept="image/*" id="my-photo2" hidden></label></div></div>
     <div class="stack" style="margin-top:16px">
       <button class="btn block" data-act="switch">${ic("swap")} Switch person</button>
       ${m.parent ? `<button class="btn ghost block" data-act="family-settings">${ic("home")} Family settings</button>` : ""}
@@ -1173,7 +1173,7 @@ async function loadInvites(){
 }
 async function shareInvite(code){
   const url = inviteLink(code);
-  if(navigator.share){ try{ await navigator.share({title: "Family App", text: "Here's an invite to set up your family on Family App", url}); return; }catch(e){ if(e.name==="AbortError") return; } }
+  if(navigator.share){ try{ await navigator.share({title: "Family Hub", text: "Here's an invite to set up your family on Family Hub", url}); return; }catch(e){ if(e.name==="AbortError") return; } }
   try{ await navigator.clipboard.writeText(url); toast("Invite link copied"); }catch{ prompt("Copy this invite link", url); }
 }
 let memberPhoto; // undefined = keep the photo, "" = remove it, otherwise a new photo
@@ -1402,6 +1402,10 @@ document.addEventListener("keydown", e => {
 });
 
 document.addEventListener("change", async e => {
+  if((e.target.id==="my-photo" || e.target.id==="my-photo2") && e.target.files[0]){
+    try{ const photo = await shrinkPhoto(e.target.files[0]); await api("/api/me/photo", {photo}); await loadFamily(); toast("Photo changed"); profileSheet(); }
+    catch(err){ if(!err.quiet) toast(err.msg || "That photo didn't work. Try a different one."); }
+  }
   if(e.target.id==="mb-photo" && e.target.files[0]){
     try{ memberPhoto = await shrinkPhoto(e.target.files[0]); $("#mb-av").innerHTML = photoPreview(memberPhoto); const del = $("#mb-photo-del"); if(del) del.hidden = false; }
     catch{ toast("That photo didn't work. Try a different one."); }
@@ -1416,7 +1420,7 @@ document.addEventListener("submit", async e => {
   if(e.target.id==="fam-login"){
     const b = e.target.querySelector("button[type=submit]"); b.disabled = true;
     try{ const j = await api("/api/family/login", {email: $("#fl-email").value, password: $("#fl-pass").value}); famToken = j.device; ls.set("fam-token", famToken); if(!(await loadFamily())) toast("Couldn't load your family. Try again."); render(); }
-    catch(err){ b.disabled = false; toast(err.msg || "Couldn't reach Family App. Check your connection."); }
+    catch(err){ b.disabled = false; toast(err.msg || "Couldn't reach Family Hub. Check your connection."); }
     return;
   }
   if(e.target.id==="signup"){
@@ -1429,7 +1433,7 @@ document.addEventListener("submit", async e => {
       famToken = j.device; token = j.token; st.me = j.member; ls.set("fam-token", famToken); ls.set("evans-token", token); ls.set("evans-me", j.member);
       st.invite = null; ver = 0; COLLS.forEach(c => S[c] = []); history.replaceState(null, "", "/");
       await loadFamily(); go("home"); sync(); toast("Your family is set up");
-    }catch(err){ b.disabled = false; toast(err.msg || "Couldn't reach Family App. Check your connection."); }
+    }catch(err){ b.disabled = false; toast(err.msg || "Couldn't reach Family Hub. Check your connection."); }
     return;
   }
   if(e.target.id==="composer"){
@@ -1455,7 +1459,7 @@ const invite = new URLSearchParams(location.search).get("invite");
 if(invite){
   st.invite = {code: invite};
   fetch("/api/invite?code=" + encodeURIComponent(invite)).then(r => r.json().then(j => { st.invite.ok = r.ok; if(!r.ok) st.invite.err = j.error || "That invite link isn't right."; }))
-    .catch(() => { st.invite.err = "Couldn't reach Family App. Check your connection and open the link again."; }).finally(render);
+    .catch(() => { st.invite.err = "Couldn't reach Family Hub. Check your connection and open the link again."; }).finally(render);
 }
 render();
 initStore().then(() => { if(location.search && !invite){ openFromUrl(location.href); history.replaceState(null, "", "/"); } });

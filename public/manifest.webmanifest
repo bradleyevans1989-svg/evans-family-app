@@ -1,6 +1,6 @@
 {
-  "name": "Family App",
-  "short_name": "Family App",
+  "name": "Family Hub",
+  "short_name": "Family Hub",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#FBF3EE",
